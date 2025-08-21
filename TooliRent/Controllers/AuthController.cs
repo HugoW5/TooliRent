@@ -46,5 +46,19 @@ namespace TooliRent.Controllers
 			}
 		}
 
+		[HttpPost("refresh")]
+		public async Task<IActionResult> Refresh([FromBody] RefreshDto dto, CancellationToken ct)
+		{
+			try
+			{
+				var (token, refreshToken) = await _authService.RefreshTokenAsync(dto.RefreshToken, ct);
+				return Ok(new { token, refreshToken });
+			}
+			catch (Exception ex)
+			{
+				return Unauthorized(ex.Message);
+			}
+		}
+
 	}
 }

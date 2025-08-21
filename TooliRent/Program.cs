@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using TooliRent.Data;
 using Microsoft.IdentityModel.Tokens;
+using TooliRent.Services;
+using TooliRent.Services.Interfaces;
+using TooliRent.Repositories.Interfaces;
+using TooliRent.Repositories;
 
 namespace TooliRent;
 
@@ -26,6 +30,17 @@ public class Program
 		// Add JWT Authentication
 		var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 		var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
+		// Register Repositories and Services
+		#region Register Repositories
+		builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+		#endregion
+
+		#region Register Services
+		builder.Services.AddScoped<IAuthService, AuthService>();
+		builder.Services.AddScoped<ITokenService, TokenService>();
+		#endregion
+
 
 		builder.Services.AddAuthentication(options =>
 		{

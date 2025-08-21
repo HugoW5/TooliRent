@@ -29,11 +29,11 @@ public class Program
 
 		// Add JWT Authentication
 		var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-		var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+		var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
 
 		// Register Repositories and Services
 		#region Register Repositories
-		builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+		builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 		#endregion
 
 		#region Register Services

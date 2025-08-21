@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TooliRent.Dto.AuthDtos;
+using TooliRent.Repositories;
 using TooliRent.Services.Interfaces;
 
 namespace TooliRent.Controllers
@@ -17,17 +18,14 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpPost("register")]
-		public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+		public async Task<ActionResult<ApiResponse<TokenDto>>> Register([FromBody] RegisterDto dto)
 		{
-			try
+			var result = await _authService.RegisterAsync(dto);
+			if (result.IsError)
 			{
-				var (token, refreshToken) = await _authService.RegisterAsync(dto);
-				return Ok(new { token, refreshToken });
+				return BadRequest(result);
 			}
-			catch (Exception ex)
-			{
-				return BadRequest(ex.Message);
-			}
+			return CreatedAtAction(nameof(Register), result);
 		}
 
 

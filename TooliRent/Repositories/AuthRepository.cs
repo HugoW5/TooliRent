@@ -19,7 +19,8 @@ namespace TooliRent.Repositories
 
 		public Task AddRefreshTokenAsync(RefreshToken token)
 		{
-			throw new NotImplementedException();
+			_context.RefreshTokens.Add(token);
+			return _context.SaveChangesAsync();
 		}
 
 		public Task<bool> CheckPasswordAsync(IdentityUser user, string password)

@@ -11,16 +11,16 @@ namespace TooliRent.Repositories
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ApplicationDbContext _context;
 
-		public AuthRepository(UserManager<IdentityUser> userManager, ApplicationDbContext context)
+		public AuthRepository(UserManager<IdentityUser> userManager, ApplicationDbContext context, CancellationToken ct = default)
 		{
 			_userManager = userManager;
 			_context = context;
 		}
 
-		public Task AddRefreshTokenAsync(RefreshToken token)
+		public async Task AddRefreshTokenAsync(RefreshToken token, CancellationToken ct = default)
 		{
-			_context.RefreshTokens.Add(token);
-			return _context.SaveChangesAsync();
+			await _context.RefreshTokens.AddAsync(token);
+			await _context.SaveChangesAsync(ct);
 		}
 
 		public Task<bool> CheckPasswordAsync(IdentityUser user, string password)
@@ -33,9 +33,9 @@ namespace TooliRent.Repositories
 			return await _userManager.CreateAsync(user, password);
 		}
 
-		public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
+		public async Task<RefreshToken?> GetRefreshTokenAsync(string token, CancellationToken ct = default)
 		{
-			return await _context.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token);
+			return await _context.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token, ct);
 		}
 
 		public Task<IdentityUser?> GetUserByEmailAsync(string email)
@@ -43,10 +43,10 @@ namespace TooliRent.Repositories
 			return _userManager.FindByEmailAsync(email);
 		}
 
-		public async Task UpdateRefreshTokenAsync(RefreshToken token)
+		public async Task UpdateRefreshTokenAsync(RefreshToken token, CancellationToken ct = default)
 		{
 			_context.RefreshTokens.Update(token);
-			await _context.SaveChangesAsync();
+			await _context.SaveChangesAsync(ct);
 		}
 	}
 }

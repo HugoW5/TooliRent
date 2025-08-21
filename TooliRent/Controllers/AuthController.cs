@@ -28,33 +28,26 @@ namespace TooliRent.Controllers
 			return CreatedAtAction(nameof(Register), result);
 		}
 
-
 		[HttpPost("login")]
-		public async Task<IActionResult> Login([FromBody] LoginDto dto)
+		public async Task<ActionResult<ApiResponse<TokenDto>>> Login([FromBody] LoginDto dto)
 		{
-			try
+			var result = await _authService.LoginAsync(dto);
+			if (result.IsError)
 			{
-				var (token, refreshToken) = await _authService.LoginAsync(dto);
-				return Ok(new { token, refreshToken });
+				return Unauthorized(result);
 			}
-			catch (Exception ex)
-			{
-				return Unauthorized(ex.Message);
-			}
+			return Ok(result);
 		}
 
 		[HttpPost("refresh")]
-		public async Task<IActionResult> Refresh([FromBody] RefreshDto dto, CancellationToken ct)
+		public async Task<ActionResult<ApiResponse<TokenDto>>> Refresh([FromBody] RefreshDto dto, CancellationToken ct)
 		{
-			try
+			var result = await _authService.RefreshTokenAsync(dto.RefreshToken, ct);
+			if (result.IsError)
 			{
-				var (token, refreshToken) = await _authService.RefreshTokenAsync(dto.RefreshToken, ct);
-				return Ok(new { token, refreshToken });
+				return Unauthorized(result);
 			}
-			catch (Exception ex)
-			{
-				return Unauthorized(ex.Message);
-			}
+			return Ok(result);
 		}
 
 	}

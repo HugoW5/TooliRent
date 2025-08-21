@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using TooliRent.Services.Interfaces;
 
@@ -18,10 +19,11 @@ namespace TooliRent.Services
 
 		public Task<string> GenerateRefreshTokenAsync()
 		{
-			throw new NotImplementedException();
+			var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+			return Task.FromResult(refreshToken);
 		}
 
-		public async Task<string> GenerateTokenAsync(IdentityUser user)
+		public  Task<string> GenerateTokenAsync(IdentityUser user)
 		{
 
 			var jwtSettings = _config.GetSection("JwtSettings");
@@ -44,7 +46,7 @@ namespace TooliRent.Services
 				signingCredentials: creds
 			);
 
-			return new JwtSecurityTokenHandler().WriteToken(token);
+			return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
 		}
 	}
 }

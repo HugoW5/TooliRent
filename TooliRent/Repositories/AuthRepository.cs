@@ -28,9 +28,9 @@ namespace TooliRent.Repositories
 			return _userManager.CheckPasswordAsync(user, password);
 		}
 
-		public Task<IdentityUser> CreateUserAsync(IdentityUser user, string password)
+		public async Task<IdentityResult> CreateUserAsync(IdentityUser user, string password)
 		{
-			throw new NotImplementedException();
+			return await _userManager.CreateAsync(user, password);
 		}
 
 		public async Task<RefreshToken?> GetRefreshTokenAsync(string token)

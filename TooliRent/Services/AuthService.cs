@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using TooliRent.Dto.AuthDtos;
 using TooliRent.Models;
+using TooliRent.Repositories;
 using TooliRent.Repositories.Interfaces;
 using TooliRent.Services.Interfaces;
 
@@ -26,15 +27,27 @@ namespace TooliRent.Services
 			_userManager = userManager;
 		}
 
-		public async Task<(string Token, string RefreshToken)> RegisterAsync(RegisterDto dto)
+		public async Task<ApiResponse<TokenDto>> RegisterAsync(RegisterDto dto)
 		{
 			if (dto.Password != dto.ConfirmPassword)
-				throw new Exception("Passwords do not match.");
-
+			{
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "Passwords do not match.",
+					Errors = new List<string> { "Password and Confirm Password must be the same." }
+				};
+			}
 			var emailValidator = new EmailAddressAttribute();
 			if (!emailValidator.IsValid(dto.Email))
-				throw new Exception("Invalid email address.");
-
+			{
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "Invalid email format.",
+					Errors = new List<string> { "The provided email is not valid." }
+				};
+			}
 			var user = new IdentityUser
 			{
 				Email = dto.Email,
@@ -44,8 +57,12 @@ namespace TooliRent.Services
 			var result = await _userManager.CreateAsync(user, dto.Password);
 			if (!result.Succeeded)
 			{
-				var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-				throw new Exception(errors);
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "User registration failed.",
+					Errors = result.Errors.Select(e => e.Description).ToList()
+				};
 			}
 
 			var token = await _tokenService.GenerateTokenAsync(user);
@@ -58,7 +75,16 @@ namespace TooliRent.Services
 				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]))
 			});
 
-			return (token, refreshToken);
+			return new ApiResponse<TokenDto>
+			{
+				IsError = false,
+				Data = new TokenDto
+				{
+					Token = token,
+					RefreshToken = refreshToken
+				},
+				Message = "User registered successfully."
+			};
 		}
 
 		public async Task<(string Token, string RefreshToken)> LoginAsync(LoginDto dto)

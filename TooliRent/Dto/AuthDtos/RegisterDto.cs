@@ -1,4 +1,4 @@
-﻿namespace TooliRent.Dto
+﻿namespace TooliRent.Dto.AuthDtos
 {
 	public class RegisterDto
 	{

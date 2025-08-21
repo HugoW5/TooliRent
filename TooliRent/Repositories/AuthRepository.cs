@@ -24,7 +24,7 @@ namespace TooliRent.Repositories
 
 		public Task<bool> CheckPasswordAsync(IdentityUser user, string password)
 		{
-			throw new NotImplementedException();
+			return _userManager.CheckPasswordAsync(user, password);
 		}
 
 		public Task<IdentityUser> CreateUserAsync(IdentityUser user, string password)

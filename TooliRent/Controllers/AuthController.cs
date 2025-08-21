@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TooliRent.Dto;
 using TooliRent.Dto.AuthDtos;
 using TooliRent.Services.Interfaces;
 

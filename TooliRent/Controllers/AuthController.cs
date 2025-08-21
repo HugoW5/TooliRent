@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TooliRent.Dto;
 using TooliRent.Dto.AuthDtos;
 using TooliRent.Services.Interfaces;
 
@@ -29,5 +30,21 @@ namespace TooliRent.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+
+
+		[HttpPost("login")]
+		public async Task<IActionResult> Login([FromBody] LoginDto dto)
+		{
+			try
+			{
+				var (token, refreshToken) = await _authService.LoginAsync(dto);
+				return Ok(new { token, refreshToken });
+			}
+			catch (Exception ex)
+			{
+				return Unauthorized(ex.Message);
+			}
+		}
+
 	}
 }

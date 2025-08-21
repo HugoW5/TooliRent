@@ -43,9 +43,10 @@ namespace TooliRent.Repositories
 			return _userManager.FindByEmailAsync(email);
 		}
 
-		public Task UpdateRefreshTokenAsync(RefreshToken token)
+		public async Task UpdateRefreshTokenAsync(RefreshToken token)
 		{
-			throw new NotImplementedException();
+			_context.RefreshTokens.Update(token);
+			await _context.SaveChangesAsync();
 		}
 	}
 }

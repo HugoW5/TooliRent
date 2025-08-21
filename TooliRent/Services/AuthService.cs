@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using TooliRent.Dto.AuthDtos;
 using TooliRent.Models;
 using TooliRent.Repositories.Interfaces;
@@ -29,6 +30,10 @@ namespace TooliRent.Services
 		{
 			if (dto.Password != dto.ConfirmPassword)
 				throw new Exception("Passwords do not match.");
+
+			var emailValidator = new EmailAddressAttribute();
+			if (!emailValidator.IsValid(dto.Email))
+				throw new Exception("Invalid email address.");
 
 			var user = new IdentityUser
 			{

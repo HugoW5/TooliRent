@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TooliRent.Data;
 using TooliRent.Models;
 using TooliRent.Repositories.Interfaces;
@@ -31,9 +32,9 @@ namespace TooliRent.Repositories
 			throw new NotImplementedException();
 		}
 
-		public Task<RefreshToken?> GetRefreshTokenAsync(string token)
+		public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
 		{
-			throw new NotImplementedException();
+			return await _context.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token);
 		}
 
 		public Task<IdentityUser?> GetUserByEmailAsync(string email)

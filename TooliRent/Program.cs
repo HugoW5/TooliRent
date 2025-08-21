@@ -1,6 +1,9 @@
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
 using TooliRent.Data;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TooliRent;
 
@@ -15,9 +18,34 @@ public class Program
 		builder.Services.AddSqlServer<ApplicationDbContext>(
 			builder.Configuration.GetConnectionString("DefaultConnection"));
 
+		// Add Identity 
 		builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 			.AddEntityFrameworkStores<ApplicationDbContext>()
 			.AddDefaultTokenProviders();
+
+		// Add JWT Authentication
+		var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+		var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
+		builder.Services.AddAuthentication(options =>
+		{
+			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+		})
+		.AddJwtBearer(options =>
+		{
+			options.TokenValidationParameters = new TokenValidationParameters
+			{
+				ValidateIssuer = true,
+				ValidateAudience = true,
+				ValidateLifetime = true,
+				ValidateIssuerSigningKey = true,
+				ValidIssuer = jwtSettings["Issuer"],
+				ValidAudience = jwtSettings["Audience"],
+				IssuerSigningKey = new SymmetricSecurityKey(key),
+				ClockSkew = TimeSpan.Zero
+			};
+		});
 
 
 		builder.Services.AddControllers();

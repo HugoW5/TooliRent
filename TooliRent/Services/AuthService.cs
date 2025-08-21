@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using TooliRent.Dto.AuthDtos;
 using TooliRent.Models;
+using TooliRent.Repositories;
 using TooliRent.Repositories.Interfaces;
 using TooliRent.Services.Interfaces;
 
@@ -26,15 +27,27 @@ namespace TooliRent.Services
 			_userManager = userManager;
 		}
 
-		public async Task<(string Token, string RefreshToken)> RegisterAsync(RegisterDto dto)
+		public async Task<ApiResponse<TokenDto>> RegisterAsync(RegisterDto dto)
 		{
 			if (dto.Password != dto.ConfirmPassword)
-				throw new Exception("Passwords do not match.");
-
+			{
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "Passwords do not match.",
+					Errors = new List<string> { "Password and Confirm Password must be the same." }
+				};
+			}
 			var emailValidator = new EmailAddressAttribute();
 			if (!emailValidator.IsValid(dto.Email))
-				throw new Exception("Invalid email address.");
-
+			{
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "Invalid email format.",
+					Errors = new List<string> { "The provided email is not valid." }
+				};
+			}
 			var user = new IdentityUser
 			{
 				Email = dto.Email,
@@ -44,8 +57,12 @@ namespace TooliRent.Services
 			var result = await _userManager.CreateAsync(user, dto.Password);
 			if (!result.Succeeded)
 			{
-				var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-				throw new Exception(errors);
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "User registration failed.",
+					Errors = result.Errors.Select(e => e.Description).ToList()
+				};
 			}
 
 			var token = await _tokenService.GenerateTokenAsync(user);
@@ -58,14 +75,30 @@ namespace TooliRent.Services
 				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]))
 			});
 
-			return (token, refreshToken);
+			return new ApiResponse<TokenDto>
+			{
+				IsError = false,
+				Data = new TokenDto
+				{
+					Token = token,
+					RefreshToken = refreshToken
+				},
+				Message = "User registered successfully."
+			};
 		}
 
-		public async Task<(string Token, string RefreshToken)> LoginAsync(LoginDto dto)
+		public async Task<ApiResponse<TokenDto>> LoginAsync(LoginDto dto)
 		{
 			var user = await _userManager.FindByEmailAsync(dto.Email);
 			if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
-				throw new Exception("Invalid credentials.");
+			{
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "Invalid credentials.",
+					Errors = new List<string> { "Email or password is incorrect." }
+				};
+			}
 
 			var token = await _tokenService.GenerateTokenAsync(user);
 			var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
@@ -77,21 +110,40 @@ namespace TooliRent.Services
 				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]))
 			});
 
-			return (token, refreshToken);
+			return new ApiResponse<TokenDto>
+			{
+				IsError = false,
+				Message = "Login successful.",
+				Data = new TokenDto { Token = token, RefreshToken = refreshToken }
+			};
 		}
 
-		public async Task<(string Token, string RefreshToken)> RefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+		public async Task<ApiResponse<TokenDto>> RefreshTokenAsync(string refreshToken, CancellationToken ct = default)
 		{
 			var storedToken = await _tokenRepo.GetRefreshTokenAsync(refreshToken, ct);
 			if (storedToken == null || storedToken.IsUsed || storedToken.IsRevoked || storedToken.ExpiryDate < DateTime.UtcNow)
-				throw new Exception("Invalid refresh token.");
+			{
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "Invalid refresh token.",
+					Errors = new List<string> { "Refresh token is invalid or expired." }
+				};
+			}
 
 			storedToken.IsUsed = true;
 			await _tokenRepo.UpdateRefreshTokenAsync(storedToken, ct);
 
 			var user = await _userManager.FindByIdAsync(storedToken.UserId);
 			if (user == null)
-				throw new Exception("User not found for this token.");
+			{
+				return new ApiResponse<TokenDto>
+				{
+					IsError = true,
+					Message = "User not found for this token.",
+					Errors = new List<string> { "User not found." }
+				};
+			}
 
 			var token = await _tokenService.GenerateTokenAsync(user);
 			var newRefreshToken = await _tokenService.GenerateRefreshTokenAsync();
@@ -103,7 +155,12 @@ namespace TooliRent.Services
 				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]))
 			});
 
-			return (token, newRefreshToken);
+			return new ApiResponse<TokenDto>
+			{
+				IsError = false,
+				Message = "Token refreshed successfully.",
+				Data = new TokenDto { Token = token, RefreshToken = newRefreshToken }
+			};
 		}
 	}
 }

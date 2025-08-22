@@ -35,7 +35,6 @@ namespace TooliRent.Services
 				return new ApiResponse<TokenDto>
 				{
 					IsError = true,
-					Message = "Passwords do not match.",
 					Error = new ProblemDetails
 					{
 						Type = "about:blank",
@@ -52,7 +51,6 @@ namespace TooliRent.Services
 				return new ApiResponse<TokenDto>
 				{
 					IsError = true,
-					Message = "Invalid email format.",
 					Error = new ProblemDetails
 					{
 						Type = "about:blank",
@@ -75,7 +73,6 @@ namespace TooliRent.Services
 				return new ApiResponse<TokenDto>
 				{
 					IsError = true,
-					Message = "User registration failed.",
 					Error = new ProblemDetails
 					{
 						Type = "about:blank",
@@ -117,7 +114,6 @@ namespace TooliRent.Services
 				return new ApiResponse<TokenDto>
 				{
 					IsError = true,
-					Message = "Invalid credentials.",
 					Error = new ProblemDetails
 					{
 						Type = "about:blank",
@@ -155,7 +151,6 @@ namespace TooliRent.Services
 				return new ApiResponse<TokenDto>
 				{
 					IsError = true,
-					Message = "Invalid refresh token.",
 					Error = new ProblemDetails
 					{
 						Type = "about:blank",
@@ -176,13 +171,12 @@ namespace TooliRent.Services
 				return new ApiResponse<TokenDto>
 				{
 					IsError = true,
-					Message = "User not found for this token.",
 					Error = new ProblemDetails
 					{
 						Type = "about:blank",
 						Title = "User Not Found",
 						Status = 404,
-						Detail = "User not found.",
+						Detail = "User not found for this token.",
 						Instance = "/auth/refresh"
 					}
 				};

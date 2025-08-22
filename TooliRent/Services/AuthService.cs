@@ -72,7 +72,7 @@ namespace TooliRent.Services
 			{
 				Token = refreshToken,
 				UserId = user.Id,
-				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]))
+				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]!))
 			});
 
 			return new ApiResponse<TokenDto>
@@ -107,7 +107,7 @@ namespace TooliRent.Services
 			{
 				Token = refreshToken,
 				UserId = user.Id,
-				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]))
+				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]!))
 			});
 
 			return new ApiResponse<TokenDto>
@@ -152,7 +152,7 @@ namespace TooliRent.Services
 			{
 				Token = newRefreshToken,
 				UserId = storedToken.UserId,
-				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]))
+				ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_config["JwtSettings:RefreshTokenExpiryDays"]!))
 			});
 
 			return new ApiResponse<TokenDto>

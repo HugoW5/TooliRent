@@ -30,37 +30,14 @@ namespace TooliRent.Services
 
 		public async Task<ApiResponse<TokenDto>> RegisterAsync(RegisterDto dto)
 		{
-			throw new Exception("This is a test exception to check the global exception handler.");
 			if (dto.Password != dto.ConfirmPassword)
 			{
-				return new ApiResponse<TokenDto>
-				{
-					IsError = true,
-					Error = new ProblemDetails
-					{
-						Type = "about:blank",
-						Title = "Password Mismatch",
-						Status = 400,
-						Detail = "Password and Confirm Password must be the same.",
-						Instance = "/auth/register"
-					}
-				};
+				throw new ArgumentException("Password and Confirm Password must be the same.");
 			}
 			var emailValidator = new EmailAddressAttribute();
 			if (!emailValidator.IsValid(dto.Email))
 			{
-				return new ApiResponse<TokenDto>
-				{
-					IsError = true,
-					Error = new ProblemDetails
-					{
-						Type = "about:blank",
-						Title = "Invalid Email",
-						Status = 400,
-						Detail = "The provided email is not valid.",
-						Instance = "/auth/register"
-					}
-				};
+				throw new ArgumentException("Invalid email format.");
 			}
 			var user = new IdentityUser
 			{
@@ -71,18 +48,7 @@ namespace TooliRent.Services
 			var result = await _userManager.CreateAsync(user, dto.Password);
 			if (!result.Succeeded)
 			{
-				return new ApiResponse<TokenDto>
-				{
-					IsError = true,
-					Error = new ProblemDetails
-					{
-						Type = "about:blank",
-						Title = "Registration Failed",
-						Status = 400,
-						Detail = string.Join("; ", result.Errors.Select(e => e.Description)),
-						Instance = "/auth/register",
-					}
-				};
+				throw new InvalidOperationException("User registration failed.");
 			}
 
 			var token = await _tokenService.GenerateTokenAsync(user);
@@ -112,18 +78,7 @@ namespace TooliRent.Services
 			var user = await _userManager.FindByEmailAsync(dto.Email);
 			if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
 			{
-				return new ApiResponse<TokenDto>
-				{
-					IsError = true,
-					Error = new ProblemDetails
-					{
-						Type = "about:blank",
-						Title = "Invalid Credentials",
-						Status = 401,
-						Detail = "Email or password is incorrect.",
-						Instance = "/auth/login"
-					}
-				};
+				throw new UnauthorizedAccessException("Invalid email or password.");
 			}
 
 			var token = await _tokenService.GenerateTokenAsync(user);
@@ -149,18 +104,7 @@ namespace TooliRent.Services
 			var storedToken = await _tokenRepo.GetRefreshTokenAsync(refreshToken, ct);
 			if (storedToken == null || storedToken.IsUsed || storedToken.IsRevoked || storedToken.ExpiryDate < DateTime.UtcNow)
 			{
-				return new ApiResponse<TokenDto>
-				{
-					IsError = true,
-					Error = new ProblemDetails
-					{
-						Type = "about:blank",
-						Title = "Invalid Refresh Token",
-						Status = 401,
-						Detail = "Refresh token is invalid or expired.",
-						Instance = "/auth/refresh"
-					}
-				};
+				throw new UnauthorizedAccessException("Invalid or expired refresh token.");
 			}
 
 			storedToken.IsUsed = true;
@@ -169,18 +113,7 @@ namespace TooliRent.Services
 			var user = await _userManager.FindByIdAsync(storedToken.UserId);
 			if (user == null)
 			{
-				return new ApiResponse<TokenDto>
-				{
-					IsError = true,
-					Error = new ProblemDetails
-					{
-						Type = "about:blank",
-						Title = "User Not Found",
-						Status = 404,
-						Detail = "User not found for this token.",
-						Instance = "/auth/refresh"
-					}
-				};
+				throw new InvalidOperationException("User not found for this token.");
 			}
 
 			var token = await _tokenService.GenerateTokenAsync(user);

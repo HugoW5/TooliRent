@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TooliRent.Dto.AuthDtos;
-using TooliRent.Repositories;
+using TooliRent.Responses;
 using TooliRent.Services.Interfaces;
 
 namespace TooliRent.Controllers

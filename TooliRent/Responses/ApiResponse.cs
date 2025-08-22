@@ -1,4 +1,4 @@
-﻿namespace TooliRent.Repositories
+﻿namespace TooliRent.Responses
 {
 	public class ApiResponse<T>
 	{

@@ -6,6 +6,7 @@ using TooliRent.Models;
 using TooliRent.Repositories.Interfaces;
 using TooliRent.Responses;
 using TooliRent.Services.Interfaces;
+using TooliRent.Exceptions;
 
 namespace TooliRent.Services
 {
@@ -48,7 +49,7 @@ namespace TooliRent.Services
 			var result = await _userManager.CreateAsync(user, dto.Password);
 			if (!result.Succeeded)
 			{
-				throw new InvalidOperationException("User registration failed.");
+				throw new IdentityException(result.Errors.Select(e => e.Description));
 			}
 
 			var token = await _tokenService.GenerateTokenAsync(user);

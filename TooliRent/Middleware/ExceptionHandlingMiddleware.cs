@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
+using TooliRent.Exceptions;
 using TooliRent.Responses;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TooliRent.Middleware
 {
@@ -29,19 +31,34 @@ namespace TooliRent.Middleware
         }
         private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-
-            var apiResponse = new ApiResponse
+			//Add problem details to this response
+			var apiResponse = new ApiResponse
             {
-                IsError = true,
-				Error = new ProblemDetails
+                IsError = true
+            };
+
+			if (exception is IdentityException identityEx)
+            {
+                apiResponse.Error = new ProblemDetails
 				{
-					Type = "https://tools.ietf.org/html/rfc7807#section-3",
-					Title = "An unexpected error occurred.",
-					Status = (int)HttpStatusCode.InternalServerError,
-					Detail = exception.Message,
+					Type = "about:blank",
+					Title = "Identity operation failed.",
+					Status = (int)HttpStatusCode.BadRequest,
+					Detail = string.Join("; ", identityEx.Errors), // Get the errors from the IdentityException
 					Instance = context.Request.Path
-				}
-			};
+				};
+			}
+            else
+            {
+                apiResponse.Error = new ProblemDetails
+                {
+                    Type = "about:blank",
+                    Title = "An unexpected error occurred.",
+                    Status = (int)HttpStatusCode.InternalServerError,
+                    Detail = exception.Message,
+                    Instance = context.Request.Path
+                };
+			}
 
 			context.Response.ContentType = "application/problem+json";
             context.Response.StatusCode = apiResponse.Error.Status ?? 500;

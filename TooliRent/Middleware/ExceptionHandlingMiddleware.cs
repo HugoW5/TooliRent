@@ -9,6 +9,8 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace TooliRent.Middleware
 {
 	//https://www.milanjovanovic.tech/blog/global-error-handling-in-aspnetcore-from-middleware-to-modern-handlers
+	//https://www.milanjovanovic.tech/blog/global-error-handling-in-aspnetcore-from-middleware-to-modern-handlers#chaining-exception-handlers
+	//TODO add FluentValidation validation-exception-handler
 	public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;

@@ -2,8 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using TooliRent.Dto.AuthDtos;
 using TooliRent.Models;
-using TooliRent.Repositories;
 using TooliRent.Repositories.Interfaces;
+using TooliRent.Responses;
 using TooliRent.Services.Interfaces;
 
 namespace TooliRent.Services

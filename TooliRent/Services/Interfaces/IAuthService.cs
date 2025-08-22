@@ -1,5 +1,5 @@
 ﻿using TooliRent.Dto.AuthDtos;
-using TooliRent.Repositories;
+using TooliRent.Responses;
 
 namespace TooliRent.Services.Interfaces
 {

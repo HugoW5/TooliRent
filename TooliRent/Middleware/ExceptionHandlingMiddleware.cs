@@ -6,7 +6,8 @@ using TooliRent.Responses;
 
 namespace TooliRent.Middleware
 {
-    public class ExceptionHandlingMiddleware
+	//https://www.milanjovanovic.tech/blog/global-error-handling-in-aspnetcore-from-middleware-to-modern-handlers
+	public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
 

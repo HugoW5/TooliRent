@@ -4,7 +4,6 @@ using System.Net;
 using System.Text.Json;
 using TooliRent.Exceptions;
 using TooliRent.Responses;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TooliRent.Middleware
 {

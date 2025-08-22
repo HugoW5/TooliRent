@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TooliRent.Dto.AuthDtos;
 using TooliRent.Models;
@@ -35,7 +36,14 @@ namespace TooliRent.Services
 				{
 					IsError = true,
 					Message = "Passwords do not match.",
-					Errors = new List<string> { "Password and Confirm Password must be the same." }
+					Error = new ProblemDetails
+					{
+						Type = "about:blank",
+						Title = "Password Mismatch",
+						Status = 400,
+						Detail = "Password and Confirm Password must be the same.",
+						Instance = "/auth/register"
+					}
 				};
 			}
 			var emailValidator = new EmailAddressAttribute();
@@ -45,7 +53,14 @@ namespace TooliRent.Services
 				{
 					IsError = true,
 					Message = "Invalid email format.",
-					Errors = new List<string> { "The provided email is not valid." }
+					Error = new ProblemDetails
+					{
+						Type = "about:blank",
+						Title = "Invalid Email",
+						Status = 400,
+						Detail = "The provided email is not valid.",
+						Instance = "/auth/register"
+					}
 				};
 			}
 			var user = new IdentityUser
@@ -61,7 +76,14 @@ namespace TooliRent.Services
 				{
 					IsError = true,
 					Message = "User registration failed.",
-					Errors = result.Errors.Select(e => e.Description).ToList()
+					Error = new ProblemDetails
+					{
+						Type = "about:blank",
+						Title = "Registration Failed",
+						Status = 400,
+						Detail = string.Join("; ", result.Errors.Select(e => e.Description)),
+						Instance = "/auth/register",
+					}
 				};
 			}
 
@@ -96,7 +118,14 @@ namespace TooliRent.Services
 				{
 					IsError = true,
 					Message = "Invalid credentials.",
-					Errors = new List<string> { "Email or password is incorrect." }
+					Error = new ProblemDetails
+					{
+						Type = "about:blank",
+						Title = "Invalid Credentials",
+						Status = 401,
+						Detail = "Email or password is incorrect.",
+						Instance = "/auth/login"
+					}
 				};
 			}
 
@@ -127,7 +156,14 @@ namespace TooliRent.Services
 				{
 					IsError = true,
 					Message = "Invalid refresh token.",
-					Errors = new List<string> { "Refresh token is invalid or expired." }
+					Error = new ProblemDetails
+					{
+						Type = "about:blank",
+						Title = "Invalid Refresh Token",
+						Status = 401,
+						Detail = "Refresh token is invalid or expired.",
+						Instance = "/auth/refresh"
+					}
 				};
 			}
 
@@ -141,7 +177,14 @@ namespace TooliRent.Services
 				{
 					IsError = true,
 					Message = "User not found for this token.",
-					Errors = new List<string> { "User not found." }
+					Error = new ProblemDetails
+					{
+						Type = "about:blank",
+						Title = "User Not Found",
+						Status = 404,
+						Detail = "User not found.",
+						Instance = "/auth/refresh"
+					}
 				};
 			}
 

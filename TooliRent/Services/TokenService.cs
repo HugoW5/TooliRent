@@ -27,7 +27,7 @@ namespace TooliRent.Services
 		{
 
 			var jwtSettings = _config.GetSection("JwtSettings");
-			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]));
+			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!));
 
 			var claims = new[]
 			{
@@ -42,7 +42,7 @@ namespace TooliRent.Services
 				issuer: jwtSettings["Issuer"],
 				audience: jwtSettings["Audience"],
 				claims: claims,
-				expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
+				expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"]!)),
 				signingCredentials: creds
 			);
 

@@ -9,4 +9,10 @@ namespace TooliRent.Responses
 		public T Data { get; set; } = default!;
 		public ProblemDetails? Error { get; set; } = null!;
 	}
+
+	// Use if data is not needed in the response.
+	public class ApiResponse : ApiResponse<object>
+	{
+		public ApiResponse() => Data = null!;
+	}
 }

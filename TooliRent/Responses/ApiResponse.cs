@@ -10,7 +10,7 @@ namespace TooliRent.Responses
 		public ProblemDetails? Error { get; set; } = null!;
 	}
 
-	/// Use if data is not needed in the response.
+	// Use if data is not needed in the response.
 	public class ApiResponse : ApiResponse<object>
 	{
 		public ApiResponse() => Data = null!;

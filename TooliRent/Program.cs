@@ -1,13 +1,14 @@
-
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TooliRent.Data;
-using Microsoft.IdentityModel.Tokens;
+using TooliRent.Repositories.Interfaces;
 using TooliRent.Services;
 using TooliRent.Services.Interfaces;
-using TooliRent.Repositories.Interfaces;
-using TooliRent.Repositories;
+using TooliRent.Middleware;
 
 namespace TooliRent;
 
@@ -68,11 +69,15 @@ public class Program
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddSwaggerGen();
 
+
 		var app = builder.Build();
 
 
 		// .NET ASPIRE
 		app.MapDefaultEndpoints();
+
+		// Global Exception Middleware
+		app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 		// Configure the HTTP request pipeline.
 		if (app.Environment.IsDevelopment())

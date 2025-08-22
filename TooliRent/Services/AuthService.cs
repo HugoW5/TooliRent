@@ -30,6 +30,7 @@ namespace TooliRent.Services
 
 		public async Task<ApiResponse<TokenDto>> RegisterAsync(RegisterDto dto)
 		{
+			throw new Exception("This is a test exception to check the global exception handler.");
 			if (dto.Password != dto.ConfirmPassword)
 			{
 				return new ApiResponse<TokenDto>

@@ -13,9 +13,10 @@ namespace TooliRent.Services
 		private readonly IConfiguration _config;
 		private readonly UserManager<IdentityUser> _userManager;
 
-		public TokenService(IConfiguration configuration)
+		public TokenService(IConfiguration configuration, UserManager<IdentityUser> userManager)
 		{
 			_config = configuration;
+			_userManager = userManager;
 		}
 
 		public Task<string> GenerateRefreshTokenAsync()

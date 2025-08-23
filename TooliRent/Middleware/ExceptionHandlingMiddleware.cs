@@ -14,12 +14,10 @@ namespace TooliRent.Middleware
 	public class ExceptionHandlingMiddleware
 	{
 		private readonly RequestDelegate _next;
-		private readonly ProblemDetailsFactory _problemDetailsFactory;
 
-		public ExceptionHandlingMiddleware(RequestDelegate next, ProblemDetailsFactory pdf)
+		public ExceptionHandlingMiddleware(RequestDelegate next)
 		{
 			_next = next;
-			_problemDetailsFactory = pdf;
 		}
 
 		public async Task InvokeAsync(HttpContext context)

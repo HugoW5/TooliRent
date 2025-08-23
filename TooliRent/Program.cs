@@ -9,6 +9,8 @@ using TooliRent.Repositories.Interfaces;
 using TooliRent.Services;
 using TooliRent.Services.Interfaces;
 using TooliRent.Middleware;
+using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 
 namespace TooliRent;
 
@@ -42,7 +44,6 @@ public class Program
 		builder.Services.AddScoped<ITokenService, TokenService>();
 		#endregion
 
-
 		builder.Services.AddAuthentication(options =>
 		{
 			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,16 +60,46 @@ public class Program
 				ValidIssuer = jwtSettings["Issuer"],
 				ValidAudience = jwtSettings["Audience"],
 				IssuerSigningKey = new SymmetricSecurityKey(key),
-				ClockSkew = TimeSpan.Zero
+				ClockSkew = TimeSpan.Zero,
+
+				RoleClaimType = ClaimTypes.Role,
+				NameClaimType = ClaimTypes.NameIdentifier
 			};
 		});
 
-
 		builder.Services.AddControllers();
-		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		builder.Services.AddEndpointsApiExplorer();
-		builder.Services.AddSwaggerGen();
 
+		// Swagger with JWT Auth support
+		builder.Services.AddSwaggerGen(c =>
+		{
+			c.SwaggerDoc("v1", new OpenApiInfo { Title = "TooliRent", Version = "v1" });
+
+			c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+			{
+				Name = "Authorization",
+				Type = SecuritySchemeType.Http,
+				Scheme = "Bearer",
+				BearerFormat = "JWT",
+				In = ParameterLocation.Header,
+				Description = "Enter: Bearer {your JWT token}"
+			});
+
+			c.AddSecurityRequirement(new OpenApiSecurityRequirement
+			{
+				{
+					new OpenApiSecurityScheme
+					{
+						Reference = new OpenApiReference
+						{
+							Type = ReferenceType.SecurityScheme,
+							Id = "Bearer"
+						}
+					},
+					Array.Empty<string>()
+				}
+			});
+		});
 
 		var app = builder.Build();
 		using (var scope = app.Services.CreateScope())
@@ -92,8 +123,8 @@ public class Program
 
 		app.UseHttpsRedirection();
 
+		app.UseAuthentication();
 		app.UseAuthorization();
-
 
 		app.MapControllers();
 

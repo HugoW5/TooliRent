@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TooliRent.Data;
 
@@ -11,9 +12,11 @@ using TooliRent.Data;
 namespace TooliRent.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250823152932_SeedData")]
+    partial class SeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,7 +166,7 @@ namespace TooliRent.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@SITE.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMQjUOb4dV0YwutubztJCQ0zAgbv35afKy5XJIInX8AQ9BBhLaV3QSucs/0LoWiHEw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEB2XN/evKfAfX3TSk6dGnJgUWve+fuEKmp8ShXUSlDMAZaTOwNgvW6/qcDXPE9Ftgw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "STATIC-SECURITY-STAMP",
                             TwoFactorEnabled = false,

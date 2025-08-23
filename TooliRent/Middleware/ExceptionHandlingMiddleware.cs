@@ -39,25 +39,23 @@ namespace TooliRent.Middleware
 				IsError = true
 			};
 
+			//Map exception to status code and title
+			var (statusCode, title) = MapException(exception);
+
 			//special handling for IdentityException
 			if (exception is IdentityException identityEx)
 			{
 				apiResponse.Error = new ProblemDetails
 				{
 					Type = "about:blank",
-					Title = "Identity operation failed.",
-					Status = (int)HttpStatusCode.BadRequest,
+					Title = title,
+					Status = statusCode,
 					Detail = string.Join("; ", identityEx.Errors), // Get the errors from the IdentityException
-					Instance = context.Request.Path,
-					Extensions = new Dictionary<string, object?>
-					{
-						{ "traceId", context.TraceIdentifier }
-					}
+					Instance = context.Request.Path
 				};
 			}
 			else
 			{
-				var (statusCode, title) = MapException(exception);
 				apiResponse.Error = new ProblemDetails
 				{
 					Type = "about:blank",

@@ -43,7 +43,7 @@ namespace TooliRent.Services
 			var user = new IdentityUser
 			{
 				Email = dto.Email,
-				UserName = dto.Email
+				UserName = dto.UserName
 			};
 
 			var result = await _userManager.CreateAsync(user, dto.Password);

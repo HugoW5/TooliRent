@@ -11,10 +11,12 @@ namespace TooliRent.Services
 	public class TokenService : ITokenService
 	{
 		private readonly IConfiguration _config;
+		private readonly UserManager<IdentityUser> _userManager;
 
-		public TokenService(IConfiguration configuration)
+		public TokenService(IConfiguration configuration, UserManager<IdentityUser> userManager)
 		{
 			_config = configuration;
+			_userManager = userManager;
 		}
 
 		public Task<string> GenerateRefreshTokenAsync()
@@ -23,18 +25,21 @@ namespace TooliRent.Services
 			return Task.FromResult(refreshToken);
 		}
 
-		public  Task<string> GenerateTokenAsync(IdentityUser user)
+		public async Task<string> GenerateTokenAsync(IdentityUser user)
 		{
 
 			var jwtSettings = _config.GetSection("JwtSettings");
 			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!));
 
-			var claims = new[]
+			var claims = new List<Claim>
 			{
 				new Claim(JwtRegisteredClaimNames.Sub, user.Id),
 				new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
 				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 			};
+
+			var roles = await _userManager.GetRolesAsync(user);
+			claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
 			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -46,7 +51,7 @@ namespace TooliRent.Services
 				signingCredentials: creds
 			);
 
-			return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
+			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 	}
 }

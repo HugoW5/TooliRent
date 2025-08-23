@@ -52,6 +52,9 @@ namespace TooliRent.Services
 				throw new IdentityException(result.Errors.Select(e => e.Description));
 			}
 
+			// Assign default role
+			await _userManager.AddToRoleAsync(user, "User");
+
 			var token = await _tokenService.GenerateTokenAsync(user);
 			var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
 

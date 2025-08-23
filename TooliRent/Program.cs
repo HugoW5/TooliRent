@@ -14,7 +14,7 @@ namespace TooliRent;
 
 public class Program
 {
-	public static void Main(string[] args)
+	public async static Task Main(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
 		builder.AddServiceDefaults();
@@ -71,7 +71,11 @@ public class Program
 
 
 		var app = builder.Build();
-
+		using (var scope = app.Services.CreateScope())
+		{
+			var services = scope.ServiceProvider;
+			await UserRolesSeed.SeedAdminUserAsync(services);
+		}
 
 		// .NET ASPIRE
 		app.MapDefaultEndpoints();

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TooliRent.Dto.AuthDtos;
 using TooliRent.Repositories.Interfaces;
 using TooliRent.Services;
 using TooliRent.Services.Interfaces;
@@ -43,7 +44,25 @@ namespace Tests
 				_tokenServiceMock.Object,
 				_configMock.Object,
 				_userManager
-			);;
+			); ;
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentException))]
+		public async Task RegisterAsync_ShouldThrow_WhenPasswordsDoNotMatch()
+		{
+			// Arrange
+			var dto = new RegisterDto
+			{
+				Email = "test@test.com",
+				UserName = "testuser",
+				Password = "Password123!",
+				ConfirmPassword = "Password1234!" // NOT matching
+			};
+			// Act & Assert
+			await _authService.RegisterAsync(dto);
+
+
 		}
 	}
 }

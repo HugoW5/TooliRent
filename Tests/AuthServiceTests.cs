@@ -61,8 +61,23 @@ namespace Tests
 			};
 			// Act & Assert
 			await _authService.RegisterAsync(dto);
-
-
 		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentException))]
+		public async Task RegisterAsync_ShouldThrow_WhenInvalidEmailFormat()
+		{
+			// Arrange
+			var dto = new RegisterDto
+			{
+				Email = "email", // Invalid email
+				UserName = "testuser",
+				Password = "Password123!",
+				ConfirmPassword = "Password123!"
+			};
+			// Act & Assert
+			await _authService.RegisterAsync(dto);
+		}
+
 	}
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TooliRent.Dto.AuthDtos;
+using TooliRent.Exceptions;
 using TooliRent.Repositories.Interfaces;
 using TooliRent.Services;
 using TooliRent.Services.Interfaces;
@@ -34,8 +37,24 @@ namespace Tests
 
 			// Setup UserManager with in-memory store
 			var store = new Mock<IUserStore<IdentityUser>>();
+			var passwordStore = store.As<IUserPasswordStore<IdentityUser>>();
+			passwordStore
+				.Setup(x => x.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(IdentityResult.Success);
+			passwordStore
+				.Setup(x => x.SetPasswordHashAsync(It.IsAny<IdentityUser>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+				.Returns(Task.CompletedTask);
+			// Mock a working UserManager
 			_userManager = new UserManager<IdentityUser>(
-				store.Object, null!, null!, null!, null!, null!, null!, null!, null!
+				store.Object,
+				Options.Create(new IdentityOptions()),
+				new PasswordHasher<IdentityUser>(),
+				new List<IUserValidator<IdentityUser>>(),
+				new List<IPasswordValidator<IdentityUser>> { new PasswordValidator<IdentityUser>() },
+				new UpperInvariantLookupNormalizer(),
+				new IdentityErrorDescriber(),
+				null!,
+				Mock.Of<ILogger<UserManager<IdentityUser>>>()
 			);
 
 			// Initialize AuthService
@@ -74,6 +93,22 @@ namespace Tests
 				UserName = "testuser",
 				Password = "Password123!",
 				ConfirmPassword = "Password123!"
+			};
+			// Act & Assert
+			await _authService.RegisterAsync(dto);
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(IdentityException))]
+		public async Task RegisterAsync_ShouldThrow_WhenUnsafePassword()
+		{
+			// Arrange
+			var dto = new RegisterDto
+			{
+				Email = "test@email.com",
+				UserName = "testuser",
+				Password = "123",
+				ConfirmPassword = "123" // Unsafe password
 			};
 			// Act & Assert
 			await _authService.RegisterAsync(dto);

@@ -103,7 +103,7 @@ namespace Tests
 		[TestMethod]
 		[ExpectedException(typeof(IdentityException))]
 		[DataRow("P!2a", DisplayName = "Too Short")]
-		[DataRow("PASsword123", DisplayName = "Without alphanumerical char")]
+		[DataRow("PASsword123", DisplayName = "Without non-alphanumerical character")]
 		[DataRow("", DisplayName = "Empty password")]
 		[DataRow("               ", DisplayName = "Whitespace")]
 		public async Task RegisterAsync_ShouldThrow_WhenUnsafePassword(string password)

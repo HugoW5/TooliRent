@@ -44,6 +44,7 @@ namespace Tests
 			passwordStore
 				.Setup(x => x.SetPasswordHashAsync(It.IsAny<IdentityUser>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
 				.Returns(Task.CompletedTask);
+			var roleStore = store.As<IUserRoleStore<IdentityUser>>();
 			// Mock a working UserManager
 			_userManager = new UserManager<IdentityUser>(
 				store.Object,
@@ -114,5 +115,21 @@ namespace Tests
 			await _authService.RegisterAsync(dto);
 		}
 
+		[TestMethod]
+		public async Task RegisterAsync_ShouldSucceed_WhenValidInput()
+		{
+			// Arrange
+			var dto = new RegisterDto
+			{
+				Email = "test@test.com",
+				UserName = "testuser",
+				Password = "Password123!",
+				ConfirmPassword = "Password123!"
+			};
+			// Act
+			var result = await _authService.RegisterAsync(dto);
+			// Assert
+			Assert.IsFalse(result.IsError);
+		}
 	}
 }

@@ -10,7 +10,7 @@ public static class UserRolesSeed
 		var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
 		// Roles
-		var roles = new[] { "Admin", "User" };
+		var roles = new[] { "Admin", "Member" };
 		foreach (var roleName in roles)
 		{
 			if (!await roleManager.RoleExistsAsync(roleName))

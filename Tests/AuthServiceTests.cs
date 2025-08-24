@@ -102,15 +102,19 @@ namespace Tests
 
 		[TestMethod]
 		[ExpectedException(typeof(IdentityException))]
-		public async Task RegisterAsync_ShouldThrow_WhenUnsafePassword()
+		[DataRow("P!2a", DisplayName = "Too Short")]
+		[DataRow("PASsword123", DisplayName = "Without alphanumerical char")]
+		[DataRow("", DisplayName = "Empty password")]
+		[DataRow("               ", DisplayName = "Whitespace")]
+		public async Task RegisterAsync_ShouldThrow_WhenUnsafePassword(string password)
 		{
 			// Arrange
 			var dto = new RegisterDto
 			{
 				Email = "test@email.com",
 				UserName = "testuser",
-				Password = "123",
-				ConfirmPassword = "123" // Unsafe password
+				Password = password,
+				ConfirmPassword = password // Unsafe password
 			};
 			// Act & Assert
 			await _authService.RegisterAsync(dto);
@@ -132,6 +136,7 @@ namespace Tests
 			// Assert
 			Assert.IsFalse(result.IsError);
 		}
+
 		[TestMethod]
 		[ExpectedException(typeof(UnauthorizedAccessException))]
 		public async Task LoginAsync_ShouldThrow_WhenInvalidCredentials()

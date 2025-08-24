@@ -45,6 +45,7 @@ namespace Tests
 				.Setup(x => x.SetPasswordHashAsync(It.IsAny<IdentityUser>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
 				.Returns(Task.CompletedTask);
 			var roleStore = store.As<IUserRoleStore<IdentityUser>>();
+			var emailStore = store.As<IUserEmailStore<IdentityUser>>();
 			// Mock a working UserManager
 			_userManager = new UserManager<IdentityUser>(
 				store.Object,
@@ -130,6 +131,19 @@ namespace Tests
 			var result = await _authService.RegisterAsync(dto);
 			// Assert
 			Assert.IsFalse(result.IsError);
+		}
+		[TestMethod]
+		[ExpectedException(typeof(UnauthorizedAccessException))]
+		public async Task LoginAsync_ShouldThrow_WhenInvalidCredentials()
+		{
+			// Arrange
+			var dto = new LoginDto
+			{
+				Email = "nonexistentuser",
+				Password = "WrongPassword!"
+			};
+			// Act & Assert
+			await _authService.LoginAsync(dto);
 		}
 	}
 }

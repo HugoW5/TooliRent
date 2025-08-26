@@ -53,7 +53,7 @@ namespace TooliRent.Services
 			}
 
 			// Assign default role
-			await _userManager.AddToRoleAsync(user, "User");
+			await _userManager.AddToRoleAsync(user, "Member");
 
 			var token = await _tokenService.GenerateTokenAsync(user);
 			var refreshToken = await _tokenService.GenerateRefreshTokenAsync();

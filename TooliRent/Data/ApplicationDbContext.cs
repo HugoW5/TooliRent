@@ -24,7 +24,7 @@ namespace TooliRent.Data
 			// Roles
 			builder.Entity<IdentityRole>().HasData(
 				new IdentityRole { Id = adminRoleId, Name = "Admin", NormalizedName = "ADMIN" },
-				new IdentityRole { Id = userRoleId, Name = "User", NormalizedName = "USER" }
+				new IdentityRole { Id = userRoleId, Name = "Member", NormalizedName = "Member" }
 			);
 
 			// Admin user

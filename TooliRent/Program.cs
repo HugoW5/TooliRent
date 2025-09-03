@@ -4,13 +4,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using TooliRent.Data;
-using TooliRent.Repositories.Interfaces;
-using TooliRent.Services;
-using TooliRent.Services.Interfaces;
 using TooliRent.Middleware;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
+using Infrastructure.Data;
+using Domain.Interfaces.ServiceInterfaces;
+using Domain.Interfaces.RepoInterfaces;
+using Infrastructure.Repositories;
+using TooliRent.Services;
+using Application.Services;
 
 namespace TooliRent;
 

@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Domain.Interfaces.ServiceInterfaces;
+using Dto.AuthDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TooliRent.Dto.AuthDtos;
-using TooliRent.Responses;
-using TooliRent.Services.Interfaces;
+using Responses;
+
 
 namespace TooliRent.Controllers
 {
@@ -50,10 +51,17 @@ namespace TooliRent.Controllers
 		[ProducesResponseType(typeof(ApiResponse<TokenDto>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
 		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-		public async Task<ActionResult<ApiResponse<TokenDto>>> Refresh([FromBody] RefreshDto dto, CancellationToken ct)
+		public async Task<ActionResult<ApiResponse<TokenDto>>> Refresh([FromBody] RefreshTokenDto dto, CancellationToken ct) 
 		{
 			var result = await _authService.RefreshTokenAsync(dto.RefreshToken, ct);
 			return Ok(result);
+		}
+
+		[Authorize]
+		[HttpGet("getUserInfo")]
+		public IActionResult GetUserInfo()
+		{
+			return Ok(User.Claims.ToDictionary(c => c.Type, c => c.Value));
 		}
 	}
 }

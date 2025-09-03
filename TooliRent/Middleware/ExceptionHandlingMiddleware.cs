@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Net;
 using System.Text.Json;
 using TooliRent.Exceptions;
-using TooliRent.Responses;
+using Responses;
 
 namespace TooliRent.Middleware
 {

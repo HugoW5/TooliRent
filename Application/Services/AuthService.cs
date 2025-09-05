@@ -1,4 +1,4 @@
-﻿using Domain.Interfaces.RepoInterfaces;
+﻿using Domain.Interfaces.Repositories;
 using Domain.Interfaces.ServiceInterfaces;
 using Domain.Models;
 using Dto.AuthDtos;

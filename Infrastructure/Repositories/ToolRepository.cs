@@ -1,7 +1,9 @@
-﻿using Domain.Interfaces.Repositories;
+﻿using Domain.Enums;
+using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using static Domain.Enums.ToolStatus;
 
 namespace Infrastructure.Repositories
 {
@@ -29,9 +31,9 @@ namespace Infrastructure.Repositories
 			return await _context.Tools.ToListAsync(ct);
 		}
 
-		public Task<IEnumerable<Tool>> GetAvailableAsync(CancellationToken ct)
+		public async Task<IEnumerable<Tool>> GetAvailableAsync(CancellationToken ct)
 		{
-			throw new NotImplementedException();
+			return _context.Tools.Where(t => t.Status == ToolStatus.Available);
 		}
 
 		public Task<IEnumerable<Tool>> GetByCategoryAsync(Guid categoryId, CancellationToken ct)

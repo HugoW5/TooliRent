@@ -103,7 +103,18 @@ public class Program
 			});
 		});
 
+		builder.Services.AddCors(options =>
+		{
+			options.AddPolicy("AllowFrontend",
+				policy => policy
+					.WithOrigins("http://localhost:5173") // your frontend URL
+					.AllowAnyHeader()
+					.AllowAnyMethod());
+		});
+
 		var app = builder.Build();
+		app.UseCors("AllowFrontend");
+
 		using (var scope = app.Services.CreateScope())
 		{
 			var services = scope.ServiceProvider;

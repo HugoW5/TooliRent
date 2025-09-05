@@ -1,18 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Domain.Interfaces.ServiceInterfaces;	
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TooliRent.Dto.AuthDtos;
 using TooliRent.Exceptions;
-using TooliRent.Repositories.Interfaces;
 using TooliRent.Services;
-using TooliRent.Services.Interfaces;
+using Dto.AuthDtos;
+using Domain.Interfaces.RepoInterfaces;
 
 namespace Tests
 {
@@ -142,7 +137,7 @@ namespace Tests
 		public async Task LoginAsync_ShouldThrow_WhenInvalidCredentials()
 		{
 			// Arrange
-			var dto = new LoginDto
+			var dto = new Dto.AuthDtos.LoginDto
 			{
 				Email = "nonexistentuser",
 				Password = "WrongPassword!"

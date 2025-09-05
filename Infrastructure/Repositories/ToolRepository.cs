@@ -36,9 +36,11 @@ namespace Infrastructure.Repositories
 			return _context.Tools.Where(t => t.Status == ToolStatus.Available);
 		}
 
-		public Task<IEnumerable<Tool>> GetByCategoryAsync(Guid categoryId, CancellationToken ct)
+		public async Task<IEnumerable<Tool>> GetByCategoryAsync(Guid categoryId, CancellationToken ct)
 		{
-			throw new NotImplementedException();
+			return await _context.Tools
+				.Where(t => t.CategoryId == categoryId)
+				.ToListAsync(ct);
 		}
 
 		public Task<Tool?> GetByIdAsync(Guid id, CancellationToken ct)

@@ -1,6 +1,6 @@
 using Domain.Models;
 
-namespace Domain.Repositories.Interfaces
+namespace Domain.Interfaces.Repositories
 {
 	public interface IRefreshTokenRepository
 	{

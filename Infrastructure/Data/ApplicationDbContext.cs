@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Domain.Enums;
+using Domain.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Domain.Models;
 namespace Infrastructure.Data
 {
 	public class ApplicationDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
@@ -12,10 +13,29 @@ namespace Infrastructure.Data
 
 		}
 		public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+		public DbSet<Category> Categories { get; set; } = null!;
+		public DbSet<Tool> Tools { get; set; } = null!;
+		public DbSet<Booking> Bookings { get; set; } = null!;
+		public DbSet<BookingItem> BookingItems { get; set; } = null!;
+
 
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
 			base.OnModelCreating(builder);
+
+
+			// Seed categories
+			var cat1 = new Category { Id = new Guid("11111111-1111-1111-1111-111111111111"), Name = "Elverktyg", Description = "Borrmaskiner, sågar osv." };
+			var cat2 = new Category { Id = new Guid("22222222-2222-2222-2222-222222222222"), Name = "Handverktyg", Description = "Skruvmejslar, hammare osv." };
+
+			builder.Entity<Category>().HasData(cat1, cat2);
+
+			// Seed tools
+			var tool1 = new Tool { Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Name = "Borrmaskin Bosch", CategoryId = cat1.Id, Status = ToolStatus.Available };
+			var tool2 = new Tool { Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Name = "Hammare", CategoryId = cat2.Id, Status = ToolStatus.Available };
+
+			builder.Entity<Tool>().HasData(tool1, tool2);
+
 
 			var adminRoleId = "8d12c03f-8b7d-4b11-9d39-12ab3b45d3c1";
 			var userRoleId = "7a7b5c20-1234-4c99-a9a1-8e1b51a7a111";

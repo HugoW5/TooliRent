@@ -7,7 +7,7 @@ using Moq;
 using TooliRent.Exceptions;
 using TooliRent.Services;
 using Dto.AuthDtos;
-using Domain.Interfaces.RepoInterfaces;
+using Domain.Interfaces.Repositories;
 
 namespace Tests
 {

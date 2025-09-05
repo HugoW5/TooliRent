@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
+#pragma warning disable CS8981
+
 
 namespace TooliRent.Migrations
 {

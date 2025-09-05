@@ -1,6 +1,7 @@
 ﻿using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -23,9 +24,9 @@ namespace Infrastructure.Repositories
 			return Task.CompletedTask;
 		}
 
-		public Task<IEnumerable<Tool>> GetAllAsync(CancellationToken ct)
+		public async Task<IEnumerable<Tool>> GetAllAsync(CancellationToken ct)
 		{
-			throw new NotImplementedException();
+			return await _context.Tools.ToListAsync(ct);
 		}
 
 		public Task<IEnumerable<Tool>> GetAvailableAsync(CancellationToken ct)

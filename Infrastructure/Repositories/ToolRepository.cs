@@ -3,6 +3,7 @@ using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using static Domain.Enums.ToolStatus;
 
 namespace Infrastructure.Repositories
@@ -17,7 +18,7 @@ namespace Infrastructure.Repositories
 
 		public async Task AddAsync(Tool tool, CancellationToken ct)
 		{
-			await _context.Tools.AddAsync(tool);
+			await _context.Tools.AddAsync(tool, ct);
 		}
 
 		public Task DeleteAsync(Tool tool, CancellationToken ct)
@@ -33,7 +34,7 @@ namespace Infrastructure.Repositories
 
 		public async Task<IEnumerable<Tool>> GetAvailableAsync(CancellationToken ct)
 		{
-			return _context.Tools.Where(t => t.Status == ToolStatus.Available);
+			return await _context.Tools.Where(t => t.Status == ToolStatus.Available).ToListAsync(ct);
 		}
 
 		public async Task<IEnumerable<Tool>> GetByCategoryAsync(Guid categoryId, CancellationToken ct)
@@ -43,19 +44,23 @@ namespace Infrastructure.Repositories
 				.ToListAsync(ct);
 		}
 
-		public Task<Tool?> GetByIdAsync(Guid id, CancellationToken ct)
+		public async Task<Tool?> GetByIdAsync(Guid id, CancellationToken ct)
 		{
-			throw new NotImplementedException();
+			return await _context.Tools.FindAsync(new object[] {id});
 		}
 
-		public Task<IEnumerable<Tool>> SearchByNameAsync(string name, CancellationToken ct)
+		public async Task<IEnumerable<Tool>> SearchByNameAsync(string name, CancellationToken ct)
 		{
-			throw new NotImplementedException();
+			return await _context.Tools
+				.Where(t => EF.Functions.Like(t.Name, $"%{name}%"))
+				.ToListAsync(ct);
 		}
 
-		public Task UpdateAsync(Tool tool, CancellationToken ct)
+		public  Task UpdateAsync(Tool tool, CancellationToken ct)
 		{
-			throw new NotImplementedException();
+			_context.Tools.Update(tool);
+			return Task.CompletedTask;
+
 		}
 	}
 }

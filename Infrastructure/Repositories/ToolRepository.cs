@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
 
 		public async Task<Tool?> GetByIdAsync(Guid id, CancellationToken ct)
 		{
-			return await _context.Tools.FindAsync(new object[] {id});
+			return await _context.Tools.FindAsync(new object[] {id}, ct);
 		}
 
 		public async Task<IEnumerable<Tool>> SearchByNameAsync(string name, CancellationToken ct)
@@ -60,7 +60,6 @@ namespace Infrastructure.Repositories
 		{
 			_context.Tools.Update(tool);
 			return Task.CompletedTask;
-
 		}
 	}
 }

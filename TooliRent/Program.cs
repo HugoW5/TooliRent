@@ -37,6 +37,11 @@ public class Program
 		// Register Repositories and Services
 		#region Register Repositories
 		builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+		builder.Services.AddScoped<IToolRepository, ToolRepository>();
+		#endregion
+
+		#region Register Unit of Work
+		builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 		#endregion
 
 		#region Register Services

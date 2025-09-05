@@ -10,15 +10,15 @@ namespace Domain.Interfaces.Repositories
 	public interface IToolRepository
 	{
 		// Basic CRUD
-		Task<Tool?> GetByIdAsync(Guid id);
-		Task<IEnumerable<Tool>> GetAllAsync();
-		Task AddAsync(Tool tool);
-		Task UpdateAsync(Tool tool);
-		Task DeleteAsync(Tool tool);
+		Task<Tool?> GetByIdAsync(Guid id, CancellationToken ct);
+		Task<IEnumerable<Tool>> GetAllAsync(CancellationToken ct);
+		Task AddAsync(Tool tool, CancellationToken ct);
+		Task UpdateAsync(Tool tool, CancellationToken ct);
+		Task DeleteAsync(Tool tool, CancellationToken ct);
 
 		// Domain-specific queries
-		Task<IEnumerable<Tool>> GetByCategoryAsync(Guid categoryId);
-		Task<IEnumerable<Tool>> GetAvailableAsync();
-		Task<IEnumerable<Tool>> SearchByNameAsync(string name);
+		Task<IEnumerable<Tool>> GetByCategoryAsync(Guid categoryId, CancellationToken ct);
+		Task<IEnumerable<Tool>> GetAvailableAsync(CancellationToken ct);
+		Task<IEnumerable<Tool>> SearchByNameAsync(string name, CancellationToken ct);
 	}
 }

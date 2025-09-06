@@ -29,7 +29,9 @@ namespace Infrastructure.Repositories
 
 		public async Task<IEnumerable<Tool>> GetAllAsync(CancellationToken ct)
 		{
-			return await _context.Tools.ToListAsync(ct);
+			return await _context.Tools
+					.Include(t => t.Category)
+					.ToListAsync(ct);
 		}
 
 		public async Task<IEnumerable<Tool>> GetAvailableAsync(CancellationToken ct)

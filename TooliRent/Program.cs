@@ -12,6 +12,7 @@ using TooliRent.Services;
 using Application.Services;
 using Domain.Interfaces.Repositories;
 using Application.Mappings;
+using Application.Services.Interfaces;
 
 namespace TooliRent;
 
@@ -48,6 +49,7 @@ public class Program
 		#region Register Services
 		builder.Services.AddScoped<IAuthService, AuthService>();
 		builder.Services.AddScoped<ITokenService, TokenService>();
+		builder.Services.AddScoped<IToolService, ToolService>();
 		#endregion
 
 		//Add AutoMapper

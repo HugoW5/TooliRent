@@ -11,6 +11,7 @@ using Infrastructure.Repositories;
 using TooliRent.Services;
 using Application.Services;
 using Domain.Interfaces.Repositories;
+using Application.Mappings;
 
 namespace TooliRent;
 
@@ -48,6 +49,12 @@ public class Program
 		builder.Services.AddScoped<IAuthService, AuthService>();
 		builder.Services.AddScoped<ITokenService, TokenService>();
 		#endregion
+
+		//Add AutoMapper
+		builder.Services.AddAutoMapper(cfg =>
+		{
+			cfg.AddProfile<MappingProfile>();
+		});
 
 		builder.Services.AddAuthentication(options =>
 		{

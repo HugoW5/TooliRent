@@ -48,7 +48,7 @@ namespace Infrastructure.Repositories
 
 		public async Task<Tool?> GetByIdAsync(Guid id, CancellationToken ct)
 		{
-			return await _context.Tools.FindAsync(new object[] {id}, ct);
+			return await _context.Tools.Include(t => t.Category).FirstOrDefaultAsync(t => t.Id == id, ct);
 		}
 
 		public async Task<IEnumerable<Tool>> SearchByNameAsync(string name, CancellationToken ct)
@@ -58,7 +58,7 @@ namespace Infrastructure.Repositories
 				.ToListAsync(ct);
 		}
 
-		public  Task UpdateAsync(Tool tool, CancellationToken ct)
+		public Task UpdateAsync(Tool tool, CancellationToken ct)
 		{
 			_context.Tools.Update(tool);
 			return Task.CompletedTask;

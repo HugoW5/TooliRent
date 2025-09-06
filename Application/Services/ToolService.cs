@@ -89,9 +89,23 @@ namespace Application.Services
 			throw new NotImplementedException();
 		}
 
-		public Task<ApiResponse<ToolDto?>> GetByIdAsync(Guid id, CancellationToken ct = default)
+		public async Task<ApiResponse<ToolDto?>> GetByIdAsync(Guid id, CancellationToken ct = default)
 		{
-			throw new NotImplementedException();
+			var tool =  await _repo.GetByIdAsync(id, ct);
+			if (tool == null)
+			{
+				throw new KeyNotFoundException($"Tool with ID {id} not found.");
+			}
+			else
+			{
+				var toolDto = _mapper.Map<ToolDto>(tool);
+				return new ApiResponse<ToolDto?>
+				{
+					IsError = false,
+					Data = toolDto,
+					Message = "Tool retrieved successfully"
+				};
+			}
 		}
 
 		public Task<ApiResponse<IEnumerable<ToolDto>>> SearchByNameAsync(string name, CancellationToken ct = default)

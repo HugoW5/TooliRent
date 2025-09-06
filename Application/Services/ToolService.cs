@@ -16,10 +16,12 @@ namespace Application.Services
 	{
 		private readonly IToolRepository _repo;
 		private readonly IMapper _mapper;
-		public ToolService(IToolRepository repo, IMapper mapper)
+		private readonly IUnitOfWork _unitOfWork;
+		public ToolService(IToolRepository repo, IMapper mapper, IUnitOfWork unitOfWork)
 		{
 			_repo = repo;
 			_mapper = mapper;
+			_unitOfWork = unitOfWork;
 		}
 
 		public Task AddAsync(ToolDto toolDto, CancellationToken ct = default)
@@ -27,10 +29,29 @@ namespace Application.Services
 			throw new NotImplementedException();
 		}
 
-		public Task UpdateAsync(ToolDto toolDto, CancellationToken ct = default)
+		public async Task UpdateAsync(UpdateToolDto toolDto, Guid toolId, CancellationToken ct = default)
 		{
-			throw new NotImplementedException();
+			var existingTool = await _repo.GetByIdAsync(toolId, ct);
+			if (existingTool == null)
+			{
+				throw new KeyNotFoundException($"Tool with ID {toolId} not found.");
+			}
+			var categoryExists = await _unitOfWork.CategoryExistsAsync(toolDto.CategoryId, ct);
+
+			if (!categoryExists)
+			{
+				throw new KeyNotFoundException($"Category with ID {toolDto.CategoryId} does not exist.");
+			}
+
+
+			// Map updates from DTO to the tracked entity
+			_mapper.Map(toolDto, existingTool);
+
+			// Persist changes via UnitOfWork
+			await _unitOfWork.SaveChangesAsync(ct);
 		}
+
+
 		public async Task DeleteAsync(Guid id, CancellationToken ct = default)
 		{
 			await _repo.DeleteAsync(new Tool { Id = id }, ct);

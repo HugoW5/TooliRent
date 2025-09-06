@@ -27,7 +27,20 @@ namespace TooliRent.Controllers
 			{
 				return Ok(tools);
 			}
+		}
 
+		[HttpPut("{id}")]
+		public async Task<IActionResult> UpdateTool(Guid id, UpdateToolDto updateToolDto, CancellationToken ct)
+		{
+			await _toolService.UpdateAsync(updateToolDto, id, ct);
+			return NoContent();
+		}
+
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteTool(Guid id, CancellationToken ct)
+		{
+			await _toolService.DeleteAsync(id, ct);
+			return NoContent();
 		}
 
 	}

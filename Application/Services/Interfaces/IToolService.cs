@@ -1,4 +1,5 @@
 ﻿using Application.Dto.ToolDtos;
+using Domain.Models;
 using Responses;
 
 
@@ -7,7 +8,7 @@ namespace Application.Services.Interfaces
 	public interface IToolService
 	{
 		Task AddAsync(ToolDto toolDto, CancellationToken ct = default);
-		Task UpdateAsync(ToolDto toolDto, CancellationToken ct = default);
+		Task UpdateAsync(UpdateToolDto toolDto, Guid toolId, CancellationToken ct = default);
 		Task DeleteAsync(Guid id, CancellationToken ct = default);
 		Task<ApiResponse<ToolDto?>> GetByIdAsync(Guid id, CancellationToken ct = default);
 		Task<ApiResponse<IEnumerable<ToolDto>>> GetAllAsync(CancellationToken ct = default);

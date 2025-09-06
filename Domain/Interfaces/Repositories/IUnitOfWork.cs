@@ -11,5 +11,6 @@ namespace Domain.Interfaces.Repositories
 		IToolRepository Tools { get; }
 
 		Task<int> SaveChangesAsync(CancellationToken ct);
+		Task<bool> CategoryExistsAsync(Guid categoryId, CancellationToken ct = default);
 	}
 }

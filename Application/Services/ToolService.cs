@@ -2,6 +2,7 @@
 using Application.Services.Interfaces;
 using AutoMapper;
 using Domain.Interfaces.Repositories;
+using Domain.Models;
 using Responses;
 using System;
 using System.Collections.Generic;
@@ -30,9 +31,9 @@ namespace Application.Services
 		{
 			throw new NotImplementedException();
 		}
-		public Task DeleteAsync(Guid id, CancellationToken ct = default)
+		public async Task DeleteAsync(Guid id, CancellationToken ct = default)
 		{
-			throw new NotImplementedException();
+			await _repo.DeleteAsync(new Tool { Id = id }, ct);
 		}
 
 		public async Task<ApiResponse<IEnumerable<ToolDto>>> GetAllAsync(CancellationToken ct = default)

@@ -7,7 +7,7 @@ namespace Domain.Interfaces.Repositories
 		// Basic CRUD
 		Task<Tool?> GetByIdAsync(Guid id, CancellationToken ct = default);
 		Task<IEnumerable<Tool>> GetAllAsync(CancellationToken ct = default);
-		Task AddAsync(Tool tool, CancellationToken ct = default);
+		Task<Guid?> AddAsync(Tool tool, CancellationToken ct = default);
 		Task UpdateAsync(Tool tool, CancellationToken ct = default);
 		Task DeleteAsync(Tool tool, CancellationToken ct = default);
 

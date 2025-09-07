@@ -24,9 +24,29 @@ namespace Application.Services
 			_unitOfWork = unitOfWork;
 		}
 
-		public Task AddAsync(ToolDto toolDto, CancellationToken ct = default)
+		/// <summary>
+		/// Adds a new tool to the repository after validating the category exists.
+		/// </summary>
+		/// <param name="addToolDto">The new tool</param>
+		/// <param name="ct"></param>
+		/// <returns>The id of the new tool</returns>
+		/// <exception cref="KeyNotFoundException">The Category does not exist</exception>
+		/// <exception cref="Exception">Internal server error</exception>
+		public async Task<Guid?> AddAsync(AddToolDto addToolDto, CancellationToken ct = default)
 		{
-			throw new NotImplementedException();
+			var categoryExists = await _unitOfWork.CategoryExistsAsync(addToolDto.CategoryId, ct);
+			if (!categoryExists)
+			{
+				throw new KeyNotFoundException($"Category with ID {addToolDto.CategoryId} does not exist.");
+			}
+			var tool = _mapper.Map<Tool>(addToolDto);
+			var addedToolId = await _repo.AddAsync(tool, ct);
+			if (addedToolId == null)
+			{
+				throw new Exception("Failed to add the tool.");
+			}
+			await _unitOfWork.SaveChangesAsync(ct);
+			return addedToolId;
 		}
 
 		public async Task UpdateAsync(UpdateToolDto toolDto, Guid toolId, CancellationToken ct = default)
@@ -55,6 +75,7 @@ namespace Application.Services
 		public async Task DeleteAsync(Guid id, CancellationToken ct = default)
 		{
 			await _repo.DeleteAsync(new Tool { Id = id }, ct);
+			await _unitOfWork.SaveChangesAsync(ct);
 		}
 
 		public async Task<ApiResponse<IEnumerable<ToolDto>>> GetAllAsync(CancellationToken ct = default)

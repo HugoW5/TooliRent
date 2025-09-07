@@ -36,7 +36,7 @@ namespace Infrastructure.Repositories
 
 		public async Task<IEnumerable<Tool>> GetAvailableAsync(CancellationToken ct)
 		{
-			return await _context.Tools.Where(t => t.Status == ToolStatus.Available).ToListAsync(ct);
+			return await _context.Tools.Where(t => t.Status == Available).ToListAsync(ct);
 		}
 
 		public async Task<IEnumerable<Tool>> GetByCategoryAsync(Guid categoryId, CancellationToken ct)

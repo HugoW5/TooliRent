@@ -79,9 +79,21 @@ namespace Application.Services
 			};
 		}
 
-		public Task<ApiResponse<IEnumerable<ToolDto>>> GetAvailableAsync(CancellationToken ct = default)
+		public async Task<ApiResponse<IEnumerable<ToolDto>>> GetAvailableAsync(CancellationToken ct = default)
 		{
-			throw new NotImplementedException();
+			var avalilableTools = await _repo.GetAvailableAsync(ct);
+			if (avalilableTools.Count() == 0)
+			{
+				throw new KeyNotFoundException("No available tools found.");
+			}
+			var toolDtos = _mapper.Map<IEnumerable<ToolDto>>(avalilableTools);
+			return new ApiResponse<IEnumerable<ToolDto>>
+			{
+				IsError = false,
+				Data = toolDtos,
+				Message = "Available tools retrieved successfully"
+			};
+
 		}
 
 		public Task<ApiResponse<IEnumerable<ToolDto>>> GetByCategoryAsync(Guid categoryId, CancellationToken ct = default)

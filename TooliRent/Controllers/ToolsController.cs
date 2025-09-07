@@ -33,15 +33,15 @@ namespace TooliRent.Controllers
 		public async Task<ActionResult<ApiResponse<ToolDto>>> GetToolById(Guid id, CancellationToken ct)
 		{
 			var tool = await _toolService.GetByIdAsync(id, ct);
-			if (tool.IsError)
-			{
-				return BadRequest(tool);
-			}
-			else
-			{
-				return Ok(tool);
-			}
+			return Ok(tool);
 		}
+		[HttpGet("avalible")]
+		public async Task<ActionResult<ApiResponse<IEnumerable<ToolDto>>>> GetAvalibleTools(CancellationToken ct)
+		{
+			var tools = await _toolService.GetAvailableAsync(ct);
+			return Ok(tools);
+		}
+
 
 		[HttpPut("{id}")]
 		public async Task<IActionResult> UpdateTool(Guid id, [FromBody] UpdateToolDto updateToolDto, CancellationToken ct)

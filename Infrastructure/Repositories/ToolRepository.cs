@@ -16,9 +16,10 @@ namespace Infrastructure.Repositories
 			_context = context;
 		}
 
-		public async Task AddAsync(Tool tool, CancellationToken ct)
+		public async Task<Guid?> AddAsync(Tool tool, CancellationToken ct)
 		{
-			await _context.Tools.AddAsync(tool, ct);
+			var addedTool = await _context.Tools.AddAsync(tool, ct);
+			return addedTool.Entity.Id;
 		}
 
 		public Task DeleteAsync(Tool tool, CancellationToken ct)

@@ -35,6 +35,15 @@ namespace TooliRent.Controllers
 			var tool = await _toolService.GetByIdAsync(id, ct);
 			return Ok(tool);
 		}
+		[HttpPost]
+		public async Task<ActionResult<ApiResponse<ToolDto>>> AddTool([FromBody] AddToolDto addToolDto, CancellationToken ct)
+		{
+			var toolId = await _toolService.AddAsync(addToolDto, ct);
+			var toolDto = await _toolService.GetByIdAsync(toolId.Value, ct);
+			toolDto.Message = "Tool created successfully"; // Set the correct message for creation
+			return CreatedAtAction(nameof(GetToolById), new { id = toolId }, toolDto);
+
+		}
 		[HttpGet("avalible")]
 		public async Task<ActionResult<ApiResponse<IEnumerable<ToolDto>>>> GetAvalibleTools(CancellationToken ct)
 		{

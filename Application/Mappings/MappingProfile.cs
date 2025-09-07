@@ -16,6 +16,10 @@ namespace Application.Mappings
 
 			CreateMap<UpdateToolDto, Tool>()
 				.ForMember(dest => dest.Category, opt => opt.Ignore());
+			CreateMap<AddToolDto, Tool>()
+				.ForMember(dest => dest.Category, opt => opt.Ignore())
+				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => ToolStatus.Available));
+
 		}
 	}
 }

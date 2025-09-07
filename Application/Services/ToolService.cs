@@ -120,9 +120,21 @@ namespace Application.Services
 			}
 		}
 
-		public Task<ApiResponse<IEnumerable<ToolDto>>> SearchByNameAsync(string name, CancellationToken ct = default)
+		public async Task<ApiResponse<IEnumerable<ToolDto>>> SearchByNameAsync(string name, CancellationToken ct = default)
 		{
-			throw new NotImplementedException();
+			var tools = await  _repo.SearchByNameAsync(name, ct);
+			if (tools.Count() == 0)
+			{
+				throw new KeyNotFoundException($"No tools found matching the name '{name}'.");
+			}
+			var toolDtos = _mapper.Map<IEnumerable<ToolDto>>(tools);
+			return new ApiResponse<IEnumerable<ToolDto>>
+			{
+				IsError = false,
+				Data = toolDtos,
+				Message = "Tools retrieved successfully"
+			};
+
 		}
 
 	}

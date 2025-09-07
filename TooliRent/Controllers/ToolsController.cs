@@ -42,6 +42,12 @@ namespace TooliRent.Controllers
 			return Ok(tools);
 		}
 
+		[HttpGet("search")]
+		public async Task<ActionResult<ApiResponse<IEnumerable<ToolDto>>>> SearchTools([FromQuery] string searchQuery, CancellationToken ct)
+		{
+			var tools = await _toolService.SearchByNameAsync(searchQuery, ct);
+			return Ok(tools);
+		}
 
 		[HttpPut("{id}")]
 		public async Task<IActionResult> UpdateTool(Guid id, [FromBody] UpdateToolDto updateToolDto, CancellationToken ct)

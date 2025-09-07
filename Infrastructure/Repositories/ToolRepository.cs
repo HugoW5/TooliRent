@@ -29,34 +29,38 @@ namespace Infrastructure.Repositories
 
 		public async Task<IEnumerable<Tool>> GetAllAsync(CancellationToken ct)
 		{
-			return await _context.Tools.ToListAsync(ct);
+			return await _context.Tools
+					.Include(t => t.Category)
+					.ToListAsync(ct);
 		}
 
 		public async Task<IEnumerable<Tool>> GetAvailableAsync(CancellationToken ct)
 		{
-			return await _context.Tools.Where(t => t.Status == ToolStatus.Available).ToListAsync(ct);
+			return await _context.Tools.Where(t => t.Status == Available).ToListAsync(ct);
 		}
 
 		public async Task<IEnumerable<Tool>> GetByCategoryAsync(Guid categoryId, CancellationToken ct)
 		{
 			return await _context.Tools
 				.Where(t => t.CategoryId == categoryId)
+				.Include(t => t.Category)
 				.ToListAsync(ct);
 		}
 
 		public async Task<Tool?> GetByIdAsync(Guid id, CancellationToken ct)
 		{
-			return await _context.Tools.FindAsync(new object[] {id}, ct);
+			return await _context.Tools.Include(t => t.Category).FirstOrDefaultAsync(t => t.Id == id, ct);
 		}
 
 		public async Task<IEnumerable<Tool>> SearchByNameAsync(string name, CancellationToken ct)
 		{
 			return await _context.Tools
 				.Where(t => EF.Functions.Like(t.Name, $"%{name}%"))
+				.Include(t => t.Category)
 				.ToListAsync(ct);
 		}
 
-		public  Task UpdateAsync(Tool tool, CancellationToken ct)
+		public Task UpdateAsync(Tool tool, CancellationToken ct)
 		{
 			_context.Tools.Update(tool);
 			return Task.CompletedTask;

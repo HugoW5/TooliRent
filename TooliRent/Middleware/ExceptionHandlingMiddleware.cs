@@ -5,6 +5,7 @@ using System.Net;
 using System.Text.Json;
 using TooliRent.Exceptions;
 using Responses;
+using FluentValidation;
 
 namespace TooliRent.Middleware
 {
@@ -54,6 +55,22 @@ namespace TooliRent.Middleware
 					Instance = context.Request.Path
 				};
 			}
+			else if (exception is ValidationException validationEx)
+			{
+				// Combine all validation failures into a single string
+				var errors = validationEx.Errors
+					.Select(e => $"{e.PropertyName}: {e.ErrorMessage}")
+					.ToArray();
+
+				apiResponse.Error = new ProblemDetails
+				{
+					Type = "about:blank",
+					Title = title,
+					Status = statusCode,
+					Detail = string.Join("; ", errors),
+					Instance = context.Request.Path
+				};
+			}
 			else
 			{
 				apiResponse.Error = new ProblemDetails
@@ -77,6 +94,7 @@ namespace TooliRent.Middleware
 			{
 				IdentityException => (StatusCodes.Status400BadRequest, "Identity operation failed"),
 				ArgumentException => (StatusCodes.Status400BadRequest, "Invalid argument"),
+				ValidationException => (StatusCodes.Status400BadRequest, "Validation failed"),
 				UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "Unauthorized"),
 				KeyNotFoundException => (StatusCodes.Status404NotFound, "Resource not found"),
 				_ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred")

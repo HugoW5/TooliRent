@@ -10,7 +10,12 @@ using Domain.Interfaces.ServiceInterfaces;
 using Infrastructure.Repositories;
 using TooliRent.Services;
 using Application.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Application.Validators;
 using Domain.Interfaces.Repositories;
+using Application.Mappings;
+using Application.Services.Interfaces;
 
 namespace TooliRent;
 
@@ -47,7 +52,14 @@ public class Program
 		#region Register Services
 		builder.Services.AddScoped<IAuthService, AuthService>();
 		builder.Services.AddScoped<ITokenService, TokenService>();
+		builder.Services.AddScoped<IToolService, ToolService>();
 		#endregion
+
+		//Add AutoMapper
+		builder.Services.AddAutoMapper(cfg =>
+		{
+			cfg.AddProfile<MappingProfile>();
+		});
 
 		builder.Services.AddAuthentication(options =>
 		{
@@ -74,6 +86,13 @@ public class Program
 
 		builder.Services.AddControllers();
 		builder.Services.AddEndpointsApiExplorer();
+
+		// Register FluentValidation auto-validation for Web API
+		builder.Services.AddFluentValidationAutoValidation();
+		builder.Services.AddFluentValidationClientsideAdapters(); // optional, mainly for MVC/Razor
+
+		// Register all validators from your assembly
+		builder.Services.AddValidatorsFromAssemblyContaining<UpdateToolDtoValidator>();
 
 		// Swagger with JWT Auth support
 		builder.Services.AddSwaggerGen(c =>

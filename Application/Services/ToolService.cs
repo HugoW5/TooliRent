@@ -96,14 +96,26 @@ namespace Application.Services
 
 		}
 
-		public Task<ApiResponse<IEnumerable<ToolDto>>> GetByCategoryAsync(Guid categoryId, CancellationToken ct = default)
+		public async Task<ApiResponse<IEnumerable<ToolDto>>> GetByCategoryAsync(Guid categoryId, CancellationToken ct = default)
 		{
-			throw new NotImplementedException();
+			var tools = await _repo.GetByCategoryAsync(categoryId, ct);
+			if (tools.Count() == 0)
+			{
+				throw new KeyNotFoundException($"No tools found in category with ID {categoryId}.");
+			}
+			var toolDtos = _mapper.Map<IEnumerable<ToolDto>>(tools);
+			return new ApiResponse<IEnumerable<ToolDto>>
+			{
+				IsError = false,
+				Data = toolDtos,
+				Message = "Tools retrieved successfully"
+			};
+
 		}
 
 		public async Task<ApiResponse<ToolDto?>> GetByIdAsync(Guid id, CancellationToken ct = default)
 		{
-			var tool =  await _repo.GetByIdAsync(id, ct);
+			var tool = await _repo.GetByIdAsync(id, ct);
 			if (tool == null)
 			{
 				throw new KeyNotFoundException($"Tool with ID {id} not found.");
@@ -122,7 +134,7 @@ namespace Application.Services
 
 		public async Task<ApiResponse<IEnumerable<ToolDto>>> SearchByNameAsync(string name, CancellationToken ct = default)
 		{
-			var tools = await  _repo.SearchByNameAsync(name, ct);
+			var tools = await _repo.SearchByNameAsync(name, ct);
 			if (tools.Count() == 0)
 			{
 				throw new KeyNotFoundException($"No tools found matching the name '{name}'.");

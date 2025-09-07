@@ -43,6 +43,7 @@ namespace Infrastructure.Repositories
 		{
 			return await _context.Tools
 				.Where(t => t.CategoryId == categoryId)
+				.Include(t => t.Category)
 				.ToListAsync(ct);
 		}
 
@@ -55,6 +56,7 @@ namespace Infrastructure.Repositories
 		{
 			return await _context.Tools
 				.Where(t => EF.Functions.Like(t.Name, $"%{name}%"))
+				.Include(t => t.Category)
 				.ToListAsync(ct);
 		}
 

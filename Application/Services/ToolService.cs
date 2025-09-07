@@ -84,12 +84,8 @@ namespace Application.Services
 
 			if (tools.Count() == 0)
 			{
-				return new ApiResponse<IEnumerable<ToolDto>>
-				{
-					IsError = true,
-					Data = null!,
-					Message = "No tools found"
-				};
+				throw new KeyNotFoundException("No tools found.");
+
 			}
 			var toolDtos = _mapper.Map<IEnumerable<ToolDto>>(tools);
 			return new ApiResponse<IEnumerable<ToolDto>>

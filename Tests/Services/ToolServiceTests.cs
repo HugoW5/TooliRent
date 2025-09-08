@@ -53,6 +53,20 @@ namespace Tests.Services
 			_uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 		}
 
+		[TestMethod]
+		[ExpectedException(typeof(KeyNotFoundException))]
+		public async Task AddAsync_ShouldThrow_WhenCategoryDoesNotExist()
+		{
+			// Arrange
+			var dto = new AddToolDto { CategoryId = Guid.NewGuid(), Name = "Hammer" };
+
+			_uowMock.Setup(u => u.CategoryExistsAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
+				.ReturnsAsync(false);
+
+			// Act
+			await _service.AddAsync(dto);
+		}
+
 
 	}
 }

@@ -39,7 +39,7 @@ namespace Tests.Services
 			var toolId = tool.Id;
 
 			_uowMock.Setup(u => u.CategoryExistsAsync(dto.CategoryId, It.IsAny<CancellationToken>()))
-				.ReturnsAsync(true); // Category does not exist but return true anyway
+				.ReturnsAsync(true); // Category exists
 
 			_mapperMock.Setup(m => m.Map<Tool>(dto)).Returns(tool);
 			_repoMock.Setup(r => r.AddAsync(tool, It.IsAny<CancellationToken>()))

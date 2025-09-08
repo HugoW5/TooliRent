@@ -40,7 +40,7 @@ namespace Tests.Repositories
 				Status = ToolStatus.Available,
 				Category = new Category
 				{
-					Id = new Guid(),
+					Id = Guid.NewGuid(),
 					Name = "saker"
 				}
 			};

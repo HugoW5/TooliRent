@@ -84,5 +84,26 @@ namespace Tests.Services
 			// Act
 			await _service.AddAsync(dto);
 		}
+
+		[TestMethod]
+		public async Task GetAllAsync_ShouldReturnTools_WhenToolsExist()
+		{
+			// Arrange
+			var tools = new List<Tool> { new Tool { Id = Guid.NewGuid(), Name = "Hammer" } };
+			var toolDtos = new List<ToolDto> { new ToolDto { Id = tools[0].Id, Name = "Hammer" } };
+
+			_repoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+				.ReturnsAsync(tools);
+			_mapperMock.Setup(m => m.Map<IEnumerable<ToolDto>>(tools))
+				.Returns(toolDtos);
+
+			// Act
+			var response = await _service.GetAllAsync();
+
+			// Assert
+			Assert.IsFalse(response.IsError);
+			Assert.AreEqual(1, response.Data.Count());
+			Assert.AreEqual("Hammer", response.Data.First().Name);
+		}
 	}
 }

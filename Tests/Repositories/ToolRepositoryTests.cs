@@ -37,7 +37,12 @@ namespace Tests.Repositories
 			{
 				Id = Guid.NewGuid(),
 				Name = "Hammer",
-				Status = ToolStatus.Available
+				Status = ToolStatus.Available,
+				Category = new Category
+				{
+					Id = new Guid(),
+					Name = "saker"
+				}
 			};
 
 			// Act

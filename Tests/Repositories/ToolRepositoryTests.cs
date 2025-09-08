@@ -9,7 +9,7 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests
+namespace Tests.Repositories
 {
 	[TestClass]
 	public class ToolRepositoryTests
@@ -37,7 +37,12 @@ namespace Tests
 			{
 				Id = Guid.NewGuid(),
 				Name = "Hammer",
-				Status = ToolStatus.Available
+				Status = ToolStatus.Available,
+				Category = new Category
+				{
+					Id = Guid.NewGuid(),
+					Name = "saker"
+				}
 			};
 
 			// Act

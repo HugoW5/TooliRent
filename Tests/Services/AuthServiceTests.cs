@@ -1,4 +1,4 @@
-﻿using Domain.Interfaces.ServiceInterfaces;	
+﻿using Domain.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,7 @@ using TooliRent.Services;
 using Dto.AuthDtos;
 using Domain.Interfaces.Repositories;
 
-namespace Tests
+namespace Tests.Services
 {
 	[TestClass]
 	public class AuthServiceTests
@@ -137,7 +137,7 @@ namespace Tests
 		public async Task LoginAsync_ShouldThrow_WhenInvalidCredentials()
 		{
 			// Arrange
-			var dto = new Dto.AuthDtos.LoginDto
+			var dto = new LoginDto
 			{
 				Email = "nonexistentuser",
 				Password = "WrongPassword!"

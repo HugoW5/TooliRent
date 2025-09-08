@@ -9,7 +9,7 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests
+namespace Tests.Repositories
 {
 	[TestClass]
 	public class ToolRepositoryTests

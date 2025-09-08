@@ -117,5 +117,22 @@ namespace Tests.Services
 			// Act
 			await _service.GetAllAsync();
 		}
+
+		[TestMethod]
+		public async Task DeleteAsync_ShouldCallRepositoryAndSaveChanges()
+		{
+			// Arrange
+			var toolId = Guid.NewGuid();
+
+			_repoMock.Setup(r => r.DeleteAsync(It.IsAny<Tool>(), It.IsAny<CancellationToken>()))
+				.Returns(Task.CompletedTask);
+
+			// Act
+			await _service.DeleteAsync(toolId);
+
+			// Assert
+			_repoMock.Verify(r => r.DeleteAsync(It.Is<Tool>(t => t.Id == toolId), It.IsAny<CancellationToken>()), Times.Once);
+			_uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+		}
 	}
 }

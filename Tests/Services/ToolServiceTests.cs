@@ -105,5 +105,17 @@ namespace Tests.Services
 			Assert.AreEqual(1, response.Data.Count());
 			Assert.AreEqual("Hammer", response.Data.First().Name);
 		}
+
+		[TestMethod]
+		[ExpectedException(typeof(KeyNotFoundException))]
+		public async Task GetAllAsync_ShouldThrow_WhenNoToolsExist()
+		{
+			// Arrange
+			_repoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+				.ReturnsAsync(new List<Tool>());
+
+			// Act
+			await _service.GetAllAsync();
+		}
 	}
 }

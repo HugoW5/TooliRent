@@ -41,5 +41,13 @@ namespace Infrastructure.Repositories
 				.FirstOrDefaultAsync(c => c.Id == id, ct);
 		}
 
+		public async Task<IEnumerable<Category>> SearchByNameAsync(string name, CancellationToken ct)
+		{
+			return await _context.Categories
+				.Where(c => EF.Functions.Like(c.Name, $"%{name}%"))
+				.Include(c => c.Tools)
+				.ToListAsync(ct);
+		}
+
 	}
 }

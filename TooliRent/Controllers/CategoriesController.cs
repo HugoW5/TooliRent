@@ -29,6 +29,7 @@ namespace TooliRent.Controllers
 				return Ok(categories);
 			}
 		}
+
 		[HttpGet("{id}")]
 		public async Task<ActionResult<ApiResponse<CategoryDto?>>> GetCategoryById(Guid id, CancellationToken ct)
 		{
@@ -42,5 +43,14 @@ namespace TooliRent.Controllers
 				return Ok(category);
 			}
 		}
+
+		[HttpPut("{id}")]
+		public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryDto categoryDto, CancellationToken ct)
+		{
+
+				await _categoryService.UpdateAsync(categoryDto, id, ct);
+				return Ok();
+		}
+
 	}
 }

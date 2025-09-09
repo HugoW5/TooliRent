@@ -67,5 +67,27 @@ namespace TooliRent.Controllers
 			return CreatedAtAction(nameof(GetCategoryById), new {id = addedCategoryId}, addedCategory);
 		}
 
+		[HttpGet("search")]
+		public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDto>>>> SearchCategoriesByName([FromQuery] string name, CancellationToken ct)
+		{
+			var result = await _categoryService.SearchByNameAsync(name, ct);
+			if (result.IsError)
+			{
+				return NotFound(result);
+			}
+			return Ok(result);
+		}
+
+		[HttpGet("{id}/tools")]
+		public async Task<ActionResult<ApiResponse<CategoryWithToolsDto?>>> GetCategoryWithTools(Guid id, CancellationToken ct)
+		{
+			var result = await _categoryService.GetWithToolsAsync(id, ct);
+			if (result.IsError)
+			{
+				return NotFound(result);
+			}
+			return Ok(result);
+		}
+
 	}
 }

@@ -69,5 +69,68 @@ namespace Tests.Repositories
 			CollectionAssert.Contains(categories.Select(c => c.Name).ToList(), "Hardware");
 			CollectionAssert.Contains(categories.Select(c => c.Name).ToList(), "Software");
 		}
+
+		[TestMethod]
+		public async Task SearchByNameAsync_Should_Return_Matching_Categories()
+		{
+			// Arrange
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new CategoryRepository(context);
+
+			var category = new Category { Id = Guid.NewGuid(), Name = "Hardware" };
+			await context.Categories.AddAsync(category);
+			await context.SaveChangesAsync(ct);
+
+			// Act
+			var result = await repo.SearchByNameAsync("Hard", ct);
+
+			// Assert
+			Assert.AreEqual(1, result.Count());
+			Assert.AreEqual("Hardware", result.First().Name);
+		}
+
+		[TestMethod]
+		public async Task UpdateAsync_Should_Update_Category()
+		{
+			// Arrange
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new CategoryRepository(context);
+
+			var category = new Category { Id = Guid.NewGuid(), Name = "Hardware" };
+			await context.Categories.AddAsync(category);
+			await context.SaveChangesAsync(ct);
+
+			// Act
+			category.Name = "UpdatedHardware";
+			await repo.UpdateAsync(category, ct);
+			await context.SaveChangesAsync(ct);
+
+			// Assert
+			var updatedCategory = await repo.GetByIdAsync(category.Id, ct);
+			Assert.AreEqual("UpdatedHardware", updatedCategory.Name);
+		}
+
+		[TestMethod]
+		public async Task DeleteAsync_Should_Remove_Category()
+		{
+			// Arrange
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new CategoryRepository(context);
+
+			var category = new Category { Id = Guid.NewGuid(), Name = "Hardware" };
+			await context.Categories.AddAsync(category);
+			await context.SaveChangesAsync(ct);
+
+			// Act
+			await repo.DeleteAsync(category, ct);
+			await context.SaveChangesAsync(ct);
+
+			// Assert
+			var deletedCategory = await repo.GetByIdAsync(category.Id, ct);
+			Assert.IsNull(deletedCategory);
+		}
 	}
 }

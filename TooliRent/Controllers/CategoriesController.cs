@@ -10,7 +10,7 @@ namespace TooliRent.Controllers
 	[ApiController]
 	public class CategoriesController : Controller
 	{
-		private readonly ICategoryService _categoryService;	
+		private readonly ICategoryService _categoryService;
 		public CategoriesController(ICategoryService service)
 		{
 			_categoryService = service;
@@ -20,7 +20,7 @@ namespace TooliRent.Controllers
 		public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDto>>>> GetAllCategories(CancellationToken ct)
 		{
 			var categories = await _categoryService.GetAllAsync(ct);
-			if(categories.IsError)
+			if (categories.IsError)
 			{
 				return BadRequest(categories);
 			}
@@ -34,7 +34,7 @@ namespace TooliRent.Controllers
 		public async Task<ActionResult<ApiResponse<CategoryDto?>>> GetCategoryById(Guid id, CancellationToken ct)
 		{
 			var category = await _categoryService.GetByIdAsync(id, ct);
-			if(category.IsError)
+			if (category.IsError)
 			{
 				return BadRequest(category);
 			}
@@ -48,8 +48,23 @@ namespace TooliRent.Controllers
 		public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryDto categoryDto, CancellationToken ct)
 		{
 
-				await _categoryService.UpdateAsync(categoryDto, id, ct);
-				return Ok();
+			await _categoryService.UpdateAsync(categoryDto, id, ct);
+			return Ok();
+		}
+
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteCategory(Guid id, CancellationToken ct)
+		{
+			await _categoryService.DeleteAsync(id, ct);
+			return NoContent();
+		}
+
+		[HttpPost("add")]
+		public async Task<ActionResult<ApiResponse<Guid?>>> AddCategory([FromBody] AddCategoryDto addCategoryDto, CancellationToken ct)
+		{
+			var addedCategoryId = await _categoryService.AddAsync(addCategoryDto, ct);
+			var addedCategory = await _categoryService.GetByIdAsync(addedCategoryId.Value, ct);
+			return CreatedAtAction(nameof(GetCategoryById), new {id = addedCategoryId}, addedCategory);
 		}
 
 	}

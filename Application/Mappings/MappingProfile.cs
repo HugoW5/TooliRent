@@ -1,4 +1,5 @@
-﻿using Application.Dto.ToolDtos;
+﻿using Application.Dto.CategoryDtos;
+using Application.Dto.ToolDtos;
 using AutoMapper;
 using Domain.Enums;
 using Domain.Models;
@@ -20,6 +21,11 @@ namespace Application.Mappings
 				.ForMember(dest => dest.Category, opt => opt.Ignore())
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => ToolStatus.Available));
 
+			CreateMap<AddCategoryDto, Category>();
+			CreateMap<UpdateCategoryDto, Category>();
+
+			CreateMap<Category, CategoryDto>();
+			CreateMap<Category , CategoryWithToolsDto>();
 		}
 	}
 }

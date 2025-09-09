@@ -43,6 +43,7 @@ public class Program
 		#region Register Repositories
 		builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 		builder.Services.AddScoped<IToolRepository, ToolRepository>();
+		builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 		#endregion
 
 		#region Register Unit of Work
@@ -53,6 +54,7 @@ public class Program
 		builder.Services.AddScoped<IAuthService, AuthService>();
 		builder.Services.AddScoped<ITokenService, TokenService>();
 		builder.Services.AddScoped<IToolService, ToolService>();
+		builder.Services.AddScoped<ICategoryService, CategoryService>();
 		#endregion
 
 		//Add AutoMapper

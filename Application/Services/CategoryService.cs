@@ -36,5 +36,18 @@ namespace Application.Services
 			await _unitOfWork.SaveChangesAsync(ct);
 			return addedCategoryId;
 		}
+		public async Task UpdateAsync(UpdateCategoryDto categoryDto, Guid categoryId, CancellationToken ct = default)
+		{
+			var existingCategory = await _repo.GetByIdAsync(categoryId, ct);
+			if (existingCategory == null)
+			{
+				throw new KeyNotFoundException($"Category with ID {categoryId} not found.");
+			}
+
+			// Map changes into tracked entity
+			_mapper.Map(categoryDto, existingCategory);
+
+			await _unitOfWork.SaveChangesAsync(ct);
+		}
 	}
 }

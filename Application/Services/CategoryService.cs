@@ -49,5 +49,11 @@ namespace Application.Services
 
 			await _unitOfWork.SaveChangesAsync(ct);
 		}
+
+		public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+		{
+			await _repo.DeleteAsync(new Category { Id = id }, ct);
+			await _unitOfWork.SaveChangesAsync(ct);
+		}
 	}
 }

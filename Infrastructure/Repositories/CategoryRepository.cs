@@ -23,5 +23,11 @@ namespace Infrastructure.Repositories
 			return addedCategory.Entity.Id;
 		}
 
+		public Task DeleteAsync(Category category, CancellationToken ct)
+		{
+			_context.Categories.Remove(category);
+			return Task.CompletedTask;
+		}
+
 	}
 }

@@ -34,7 +34,12 @@ namespace Infrastructure.Repositories
 		{
 			return await _context.Categories.ToListAsync(ct);
 		}
-
+		public async Task<Category?> GetByIdAsync(Guid id, CancellationToken ct)
+		{
+			return await _context.Categories
+				.Include(c => c.Tools) // eager load tools
+				.FirstOrDefaultAsync(c => c.Id == id, ct);
+		}
 
 	}
 }

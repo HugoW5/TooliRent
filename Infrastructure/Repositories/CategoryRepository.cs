@@ -37,7 +37,6 @@ namespace Infrastructure.Repositories
 		public async Task<Category?> GetByIdAsync(Guid id, CancellationToken ct)
 		{
 			return await _context.Categories
-				.Include(c => c.Tools) // eager load tools
 				.FirstOrDefaultAsync(c => c.Id == id, ct);
 		}
 
@@ -45,8 +44,14 @@ namespace Infrastructure.Repositories
 		{
 			return await _context.Categories
 				.Where(c => EF.Functions.Like(c.Name, $"%{name}%"))
-				.Include(c => c.Tools)
 				.ToListAsync(ct);
+		}
+
+
+		public Task UpdateAsync(Category category, CancellationToken ct)
+		{
+			_context.Categories.Update(category);
+			return Task.CompletedTask;
 		}
 
 	}

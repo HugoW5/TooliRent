@@ -29,5 +29,18 @@ namespace TooliRent.Controllers
 				return Ok(categories);
 			}
 		}
+		[HttpGet("{id}")]
+		public async Task<ActionResult<ApiResponse<CategoryDto?>>> GetCategoryById(Guid id, CancellationToken ct)
+		{
+			var category = await _categoryService.GetByIdAsync(id, ct);
+			if(category.IsError)
+			{
+				return BadRequest(category);
+			}
+			else
+			{
+				return Ok(category);
+			}
+		}
 	}
 }

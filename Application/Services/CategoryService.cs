@@ -109,5 +109,22 @@ namespace Application.Services
 				Message = "Categories retrieved successfully"
 			};
 		}
+
+		public async Task<ApiResponse<CategoryWithToolsDto?>> GetWithToolsAsync(Guid id, CancellationToken ct = default)
+		{
+			var category = await _repo.GetWithToolsAsync(id, ct);
+			if (category == null)
+			{
+				throw new KeyNotFoundException($"Category with ID {id} not found.");
+			}
+
+			var dto = _mapper.Map<CategoryWithToolsDto>(category);
+			return new ApiResponse<CategoryWithToolsDto?>
+			{
+				IsError = false,
+				Data = dto,
+				Message = "Category with tools retrieved successfully"
+			};
+		}
 	}
 }

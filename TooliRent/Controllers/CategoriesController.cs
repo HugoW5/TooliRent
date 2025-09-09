@@ -64,6 +64,7 @@ namespace TooliRent.Controllers
 		{
 			var addedCategoryId = await _categoryService.AddAsync(addCategoryDto, ct);
 			var addedCategory = await _categoryService.GetByIdAsync(addedCategoryId.Value, ct);
+			addedCategory.Message = "Category added successfully";
 			return CreatedAtAction(nameof(GetCategoryById), new {id = addedCategoryId}, addedCategory);
 		}
 

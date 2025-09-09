@@ -91,5 +91,23 @@ namespace Application.Services
 				Message = "Category retrieved successfully"
 			};
 		}
+
+		public async Task<ApiResponse<IEnumerable<CategoryDto>>> SearchByNameAsync(string name, CancellationToken ct = default)
+		{
+			var categories = await _repo.SearchByNameAsync(name, ct);
+
+			if (!categories.Any())
+			{
+				throw new KeyNotFoundException($"No categories found matching the name '{name}'.");
+			}
+
+			var categoryDtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+			return new ApiResponse<IEnumerable<CategoryDto>>
+			{
+				IsError = false,
+				Data = categoryDtos,
+				Message = "Categories retrieved successfully"
+			};
+		}
 	}
 }

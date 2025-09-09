@@ -3,6 +3,7 @@ using Application.Services.Interfaces;
 using AutoMapper;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
+using Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +55,24 @@ namespace Application.Services
 		{
 			await _repo.DeleteAsync(new Category { Id = id }, ct);
 			await _unitOfWork.SaveChangesAsync(ct);
+		}
+
+		public async Task<ApiResponse<IEnumerable<CategoryDto>>> GetAllAsync(CancellationToken ct = default)
+		{
+			var categories = await _repo.GetAllAsync(ct);
+
+			if (!categories.Any())
+			{
+				throw new KeyNotFoundException("No categories found.");
+			}
+
+			var categoryDtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+			return new ApiResponse<IEnumerable<CategoryDto>>
+			{
+				IsError = false,
+				Data = categoryDtos,
+				Message = "Categories retrieved successfully"
+			};
 		}
 	}
 }

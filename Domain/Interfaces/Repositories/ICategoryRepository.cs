@@ -15,5 +15,6 @@ namespace Domain.Interfaces.Repositories
 		Task<Category?> GetByIdAsync(Guid id, CancellationToken ct);
 		Task<IEnumerable<Category>> SearchByNameAsync(string name, CancellationToken ct);
 		Task UpdateAsync(Category category, CancellationToken ct);
+		Task<Category?> GetWithToolsAsync(Guid id, CancellationToken ct);
 	}
 }

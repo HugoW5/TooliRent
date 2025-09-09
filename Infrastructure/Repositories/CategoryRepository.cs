@@ -54,5 +54,13 @@ namespace Infrastructure.Repositories
 			return Task.CompletedTask;
 		}
 
+		public async Task<Category?> GetWithToolsAsync(Guid id, CancellationToken ct)
+		{
+			return await _context.Categories
+				.Include(c => c.Tools)
+				.FirstOrDefaultAsync(c => c.Id == id, ct);
+		}
+
+
 	}
 }

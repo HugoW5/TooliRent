@@ -74,5 +74,22 @@ namespace Application.Services
 				Message = "Categories retrieved successfully"
 			};
 		}
+
+		public async Task<ApiResponse<CategoryDto?>> GetByIdAsync(Guid id, CancellationToken ct = default)
+		{
+			var category = await _repo.GetByIdAsync(id, ct);
+			if (category == null)
+			{
+				throw new KeyNotFoundException($"Category with ID {id} not found.");
+			}
+
+			var categoryDto = _mapper.Map<CategoryDto>(category);
+			return new ApiResponse<CategoryDto?>
+			{
+				IsError = false,
+				Data = categoryDto,
+				Message = "Category retrieved successfully"
+			};
+		}
 	}
 }

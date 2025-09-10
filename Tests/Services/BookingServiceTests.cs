@@ -91,5 +91,54 @@ namespace Tests.Services
 			// Act
 			await _service.AddAsync(bookingDto);
 		}
+
+
+		[TestMethod]
+		[ExpectedException(typeof(InvalidOperationException))]
+		public async Task AddAsync_ShouldThrow_WhenToolNotAvailable()
+		{
+			// Arrange
+			var bookingDto = new AddBookingDto
+			{
+				UserId = "user1",
+				StartAt = DateTime.UtcNow,
+				EndAt = DateTime.UtcNow.AddDays(1),
+				ToolIds = new List<Guid> { Guid.NewGuid() }
+			};
+
+			_toolRepoMock.Setup(tr => tr.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync(new Tool { Id = Guid.NewGuid(), Status = ToolStatus.Booked });
+
+			// Act
+			await _service.AddAsync(bookingDto);
+		}
+
+		[TestMethod]
+		public async Task GetByIdAsync_ShouldReturnBookingDto_WhenBookingExists()
+		{
+			// Arrange
+			var booking = new Booking { Id = Guid.NewGuid(), UserId = "user1" };
+			_repoMock.Setup(r => r.GetByIdAsync(booking.Id, It.IsAny<CancellationToken>()))
+				.ReturnsAsync(booking);
+
+			// Act
+			var result = await _service.GetByIdAsync(booking.Id);
+
+			// Assert
+			Assert.IsFalse(result.IsError);
+			Assert.AreEqual(booking.Id, result.Data!.Id);
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(KeyNotFoundException))]
+		public async Task GetByIdAsync_ShouldThrow_WhenBookingDoesNotExist()
+		{
+			// Arrange
+			_repoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync((Booking)null!);
+
+			// Act
+			await _service.GetByIdAsync(Guid.NewGuid());
+		}
 	}
 }

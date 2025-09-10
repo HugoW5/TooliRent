@@ -106,5 +106,12 @@ namespace TooliRent.Controllers
 			await _bookingService.UpdateAsync(bookingDto, id, ct);
 			return Ok();
 		}
+
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteBooking(Guid id, CancellationToken ct)
+		{
+			await _bookingService.DeleteAsync(id, ct);
+			return NoContent();
+		}
 	}
 }

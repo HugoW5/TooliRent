@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.Enums;
+using Domain.Models;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -37,6 +38,35 @@ namespace Infrastructure.Repositories
 				.Include(b => b.User)
 				.Include(b => b.BookingItems)
 					.ThenInclude(bi => bi.Tool)
+				.AsNoTracking()
+				.ToListAsync(ct);
+		}
+
+		public async Task<Booking?> GetByIdAsync(Guid id, CancellationToken ct = default)
+		{
+			return await _context.Bookings
+				.Include(b => b.User)
+				.Include(b => b.BookingItems)
+					.ThenInclude(bi => bi.Tool)
+				.FirstOrDefaultAsync(b => b.Id == id, ct);
+		}
+
+		public async Task<IEnumerable<Booking>> GetByUserAsync(string userId, CancellationToken ct = default)
+		{
+			return await _context.Bookings
+				.Where(b => b.UserId == userId)
+				.Include(b => b.BookingItems)
+				.ThenInclude(bi => bi.Tool)
+				.AsNoTracking()
+				.ToListAsync(ct);
+		}
+
+		public async Task<IEnumerable<Booking>> GetByStatusAsync(BookingStatus status, CancellationToken ct = default)
+		{
+			return await _context.Bookings
+				.Where(b => b.Status == status)
+				.Include(b => b.BookingItems)
+				.ThenInclude(bi => bi.Tool)
 				.AsNoTracking()
 				.ToListAsync(ct);
 		}

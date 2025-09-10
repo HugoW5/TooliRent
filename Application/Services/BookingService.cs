@@ -4,6 +4,7 @@ using AutoMapper;
 using Domain.Enums;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
+using Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +59,41 @@ namespace Application.Services
 
 			await _unitOfWork.SaveChangesAsync(ct);
 			return bookingId;
+		}
+
+		public async Task UpdateAsync(UpdateBookingDto bookingDto, Guid bookingId, CancellationToken ct = default)
+		{
+			var existing = await _repo.GetByIdAsync(bookingId, ct);
+			if (existing == null)
+				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+
+			_mapper.Map(bookingDto, existing);
+			await _unitOfWork.SaveChangesAsync(ct);
+		}
+
+		public async Task DeleteAsync(Guid bookingId, CancellationToken ct = default)
+		{
+			var existing = await _repo.GetByIdAsync(bookingId, ct);
+			if (existing == null)
+				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+
+			await _repo.DeleteAsync(existing, ct);
+			await _unitOfWork.SaveChangesAsync(ct);
+		}
+
+		public async Task<ApiResponse<BookingDto?>> GetByIdAsync(Guid id, CancellationToken ct = default)
+		{
+			var booking = await _repo.GetByIdAsync(id, ct);
+			if (booking == null)
+				throw new KeyNotFoundException($"Booking with ID {id} not found.");
+
+			var dto = _mapper.Map<BookingDto>(booking);
+			return new ApiResponse<BookingDto?>
+			{
+				IsError = false,
+				Data = dto,
+				Message = "Booking retrieved successfully"
+			};
 		}
 	}
 }

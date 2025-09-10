@@ -71,5 +71,30 @@ namespace Infrastructure.Repositories
 				.ToListAsync(ct);
 		}
 
+		public async Task<IEnumerable<Booking>> GetActiveAsync(CancellationToken ct = default)
+		{
+			var now = DateTime.UtcNow;
+			return await _context.Bookings
+				.Where(b => b.StartAt <= now && b.EndAt >= now)
+				.Include(b => b.BookingItems)
+				.ThenInclude(bi => bi.Tool)
+				.AsNoTracking()
+				.ToListAsync(ct);
+		}
+
+		public async Task<Booking?> GetWithItemsAsync(Guid id, CancellationToken ct = default)
+		{
+			return await _context.Bookings
+				.Include(b => b.BookingItems)
+				.ThenInclude(bi => bi.Tool)
+				.FirstOrDefaultAsync(b => b.Id == id, ct);
+		}
+
+		public async Task UpdateAsync(Booking booking, CancellationToken ct = default)
+		{
+			_context.Bookings.Update(booking);
+			await _context.SaveChangesAsync(ct);
+		}
+
 	}
 }

@@ -42,7 +42,7 @@ namespace Application.Services
 				{
 					throw new KeyNotFoundException($"Tool with ID {toolId} not found.");
 				}
-				if(tool.Status != ToolStatus.Available)
+				if (tool.Status != ToolStatus.Available)
 				{
 					throw new InvalidOperationException($"Tool with ID {toolId} is not available for booking.");
 				}
@@ -108,6 +108,29 @@ namespace Application.Services
 				Data = dto,
 				Message = "Booking retrieved successfully"
 			};
+		}
+		public async Task ReturnBookingAsync(Guid bookingId, CancellationToken ct = default)
+		{
+			var booking = await _repo.GetWithItemsAsync(bookingId, ct);
+			if (booking == null)
+			{
+				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
+
+			// Mark booking as returned
+			booking.Status = BookingStatus.Returned;
+
+			// Mark all tools as available
+			foreach (var item in booking.BookingItems)
+			{
+				var tool = await _toolRepo.GetByIdAsync(item.ToolId, ct);
+				if (tool != null)
+				{
+					tool.Status = ToolStatus.Available;
+				}
+			}
+
+			await _unitOfWork.SaveChangesAsync(ct);
 		}
 
 		public async Task<ApiResponse<IEnumerable<BookingDto>>> GetAllAsync(CancellationToken ct = default)

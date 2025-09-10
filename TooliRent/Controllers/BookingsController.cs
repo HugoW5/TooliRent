@@ -89,6 +89,14 @@ namespace TooliRent.Controllers
 			return Ok(result);
 		}
 
+		[HttpPost("{id}/return")]
+		public async Task<IActionResult> ReturnBooking(Guid id, CancellationToken ct)
+		{
+			await _bookingService.ReturnBookingAsync(id, ct);
+			return Ok(new { Message = "Booking returned successfully" });
+		}
+
+
 		[HttpPost("add")]
 		public async Task<ActionResult<ApiResponse<Guid?>>> AddBooking([FromBody] AddBookingDto addBookingDto, CancellationToken ct)
 		{

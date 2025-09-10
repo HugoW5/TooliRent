@@ -1,5 +1,6 @@
 ﻿using Application.Dto.BookingDtos;
 using Application.Services.Interfaces;
+using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Responses;
 
@@ -52,5 +53,40 @@ namespace TooliRent.Controllers
 			return Ok(result);
 		}
 
+		[HttpGet("user/{userId}")]
+		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetBookingsByUser(string userId, CancellationToken ct)
+		{
+			var result = await _bookingService.GetByUserAsync(userId, ct);
+			if (result.IsError)
+			{
+				return NotFound(result);
+			}
+
+			return Ok(result);
+		}
+
+		[HttpGet("status/{status}")]
+		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetBookingsByStatus(BookingStatus status, CancellationToken ct)
+		{
+			var result = await _bookingService.GetByStatusAsync(status, ct);
+			if (result.IsError)
+			{
+				return NotFound(result);
+			}
+
+			return Ok(result);
+		}
+
+		[HttpGet("active")]
+		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetActiveBookings(CancellationToken ct)
+		{
+			var result = await _bookingService.GetActiveAsync(ct);
+			if (result.IsError)
+			{
+				return NotFound(result);
+			}
+
+			return Ok(result);
+		}
 	}
 }

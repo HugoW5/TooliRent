@@ -26,10 +26,10 @@ namespace Infrastructure.Repositories
 			return booking.Id;
 		}
 
-		public async Task DeleteAsync(Booking booking, CancellationToken ct = default)
+		public  Task DeleteAsync(Booking booking, CancellationToken ct = default)
 		{
 			_context.Bookings.Remove(booking);
-			await _context.SaveChangesAsync(ct);
+			return Task.CompletedTask;
 		}
 
 		public async Task<IEnumerable<Booking>> GetAllAsync(CancellationToken ct = default)

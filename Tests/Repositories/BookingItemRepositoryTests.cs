@@ -134,7 +134,7 @@ namespace Tests.Repositories
 			await context.SaveChangesAsync(ct);
 
 			await repo.DeleteAsync(item, ct);
-
+			await context.SaveChangesAsync(ct);
 			var deletedItem = await repo.GetByIdAsync(item.Id, ct);
 			Assert.IsNull(deletedItem);
 		}

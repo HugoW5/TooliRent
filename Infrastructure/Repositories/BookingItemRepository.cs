@@ -26,10 +26,10 @@ namespace Infrastructure.Repositories
 			return item.Id;
 		}
 
-		public async Task DeleteAsync(BookingItem item, CancellationToken ct = default)
+		public Task DeleteAsync(BookingItem item, CancellationToken ct = default)
 		{
 			_context.BookingItems.Remove(item);
-			await _context.SaveChangesAsync(ct);
+			return Task.CompletedTask;
 		}
 
 		public async Task<BookingItem?> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -49,10 +49,10 @@ namespace Infrastructure.Repositories
 				.ToListAsync(ct);
 		}
 
-		public async Task UpdateAsync(BookingItem item, CancellationToken ct = default)
+		public Task UpdateAsync(BookingItem item, CancellationToken ct = default)
 		{
 			_context.BookingItems.Update(item);
-			await _context.SaveChangesAsync(ct);
+			return Task.CompletedTask;
 		}
 	}
 }

@@ -166,5 +166,20 @@ namespace Application.Services
 				Message = "Active bookings retrieved successfully"
 			};
 		}
+
+		public async Task<ApiResponse<BookingWithItemsDto?>> GetWithItemsAsync(Guid id, CancellationToken ct = default)
+		{
+			var booking = await _repo.GetWithItemsAsync(id, ct);
+			if (booking == null)
+				throw new KeyNotFoundException($"Booking with ID {id} not found.");
+
+			var dto = _mapper.Map<BookingWithItemsDto>(booking);
+			return new ApiResponse<BookingWithItemsDto?>
+			{
+				IsError = false,
+				Data = dto,
+				Message = "Booking with items retrieved successfully"
+			};
+		}
 	}
 }

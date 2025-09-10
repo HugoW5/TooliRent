@@ -33,7 +33,21 @@ namespace TooliRent.Controllers
 		{
 			var result = await _bookingService.GetByIdAsync(id, ct);
 			if (result.IsError)
+			{
 				return NotFound(result);
+			}
+
+			return Ok(result);
+		}
+
+		[HttpGet("{id}/items")]
+		public async Task<ActionResult<ApiResponse<BookingWithItemsDto?>>> GetBookingWithItems(Guid id, CancellationToken ct)
+		{
+			var result = await _bookingService.GetWithItemsAsync(id, ct);
+			if (result.IsError)
+			{
+				return NotFound(result);
+			}
 
 			return Ok(result);
 		}

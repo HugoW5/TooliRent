@@ -42,6 +42,10 @@ namespace Application.Services
 				{
 					throw new KeyNotFoundException($"Tool with ID {toolId} not found.");
 				}
+				if(tool.Status != ToolStatus.Available)
+				{
+					throw new InvalidOperationException($"Tool with ID {toolId} is not available for booking.");
+				}
 			}
 
 			var booking = new Booking

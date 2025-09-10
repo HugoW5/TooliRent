@@ -90,10 +90,10 @@ namespace Infrastructure.Repositories
 				.FirstOrDefaultAsync(b => b.Id == id, ct);
 		}
 
-		public async Task UpdateAsync(Booking booking, CancellationToken ct = default)
+		public Task UpdateAsync(Booking booking, CancellationToken ct = default)
 		{
 			_context.Bookings.Update(booking);
-			await _context.SaveChangesAsync(ct);
+			return Task.CompletedTask;
 		}
 
 	}

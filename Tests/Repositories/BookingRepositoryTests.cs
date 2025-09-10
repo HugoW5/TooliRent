@@ -155,5 +155,57 @@ namespace Tests.Repositories
 			Assert.AreEqual(1, result.Count());
 			Assert.AreEqual("user1", result.First().UserId);
 		}
+
+		[TestMethod]
+		public async Task UpdateAsync_Should_Update_Booking()
+		{
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new BookingRepository(context);
+
+			var booking = new Booking
+			{
+				Id = Guid.NewGuid(),
+				UserId = "user1",
+				User = new IdentityUser { Id = "user1", UserName = "user1" },
+				StartAt = DateTime.UtcNow,
+				EndAt = DateTime.UtcNow.AddDays(1)
+			};
+
+			await context.Bookings.AddAsync(booking);
+			await context.SaveChangesAsync(ct);
+
+			booking.Status = BookingStatus.Returned;
+			await repo.UpdateAsync(booking, ct);
+			await context.SaveChangesAsync(ct);
+
+			var updatedBooking = await repo.GetByIdAsync(booking.Id, ct);
+			Assert.AreEqual(BookingStatus.Returned, updatedBooking!.Status);
+		}
+
+		[TestMethod]
+		public async Task DeleteAsync_Should_Remove_Booking()
+		{
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new BookingRepository(context);
+
+			var booking = new Booking
+			{
+				Id = Guid.NewGuid(),
+				UserId = "user1",
+				StartAt = DateTime.UtcNow,
+				EndAt = DateTime.UtcNow.AddDays(1)
+			};
+
+			await context.Bookings.AddAsync(booking);
+			await context.SaveChangesAsync(ct);
+
+			await repo.DeleteAsync(booking, ct);
+			await context.SaveChangesAsync(ct);
+
+			var deletedBooking = await repo.GetByIdAsync(booking.Id, ct);
+			Assert.IsNull(deletedBooking);
+		}
 	}
 }

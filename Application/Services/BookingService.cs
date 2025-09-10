@@ -151,5 +151,20 @@ namespace Application.Services
 				Message = "Bookings retrieved successfully"
 			};
 		}
+
+		public async Task<ApiResponse<IEnumerable<BookingDto>>> GetActiveAsync(CancellationToken ct = default)
+		{
+			var bookings = await _repo.GetActiveAsync(ct);
+			if (!bookings.Any())
+				throw new KeyNotFoundException("No active bookings found.");
+
+			var dtos = _mapper.Map<IEnumerable<BookingDto>>(bookings);
+			return new ApiResponse<IEnumerable<BookingDto>>
+			{
+				IsError = false,
+				Data = dtos,
+				Message = "Active bookings retrieved successfully"
+			};
+		}
 	}
 }

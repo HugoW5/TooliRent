@@ -2,6 +2,7 @@
 using Domain.Models;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Tests.Repositories
 		private ApplicationDbContext GetInMemoryDbContext()
 		{
 			var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-				.UseInMemoryDatabase(Guid.NewGuid().ToString()) // unique DB per test
+				.UseInMemoryDatabase(Guid.NewGuid().ToString())
 				.Options;
 
 			return new ApplicationDbContext(options);
@@ -31,10 +32,12 @@ namespace Tests.Repositories
 			var context = GetInMemoryDbContext();
 			var repo = new BookingRepository(context);
 
+			string uuid = "user1";
 			var booking = new Booking
 			{
 				Id = Guid.NewGuid(),
-				UserId = "user1",
+				UserId = uuid.ToString(),
+				User = new Microsoft.AspNetCore.Identity.IdentityUser { Id = uuid, UserName = "user1" },
 				StartAt = DateTime.UtcNow,
 				EndAt = DateTime.UtcNow.AddDays(1),
 				Status = BookingStatus.Reserved
@@ -49,6 +52,57 @@ namespace Tests.Repositories
 			Assert.IsNotNull(savedBooking);
 			Assert.AreEqual("user1", savedBooking.UserId);
 			Assert.AreEqual(BookingStatus.Reserved, savedBooking.Status);
+		}
+		[TestMethod]
+		public async Task GetAllAsync_Should_Return_All_Bookings()
+		{
+			// Arrange
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new BookingRepository(context);
+
+			var user1 = new IdentityUser { Id = "u1", UserName = "user1" };
+			var user2 = new IdentityUser { Id = "u2", UserName = "user2" };
+
+			await context.Users.AddRangeAsync(user1, user2);
+			await context.SaveChangesAsync(ct);
+
+			var booking1 = new Booking { Id = Guid.NewGuid(), UserId = user1.Id, StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(1) };
+			var booking2 = new Booking { Id = Guid.NewGuid(), UserId = user2.Id, StartAt = DateTime.UtcNow, EndAt = DateTime.UtcNow.AddDays(2) };
+
+			await repo.AddAsync(booking1, ct);
+			await repo.AddAsync(booking2, ct);
+			await context.SaveChangesAsync(ct);
+
+			// Act
+			var bookings = await repo.GetAllAsync(ct);
+
+			// Assert
+			Assert.AreEqual(2, bookings.Count());
+		}
+
+		[TestMethod]
+		public async Task GetByUserAsync_Should_Return_Bookings_For_User()
+		{
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new BookingRepository(context);
+
+			var booking = new Booking
+			{
+				Id = Guid.NewGuid(),
+				UserId = "user1",
+				StartAt = DateTime.UtcNow,
+				EndAt = DateTime.UtcNow.AddDays(1)
+			};
+
+			await context.Bookings.AddAsync(booking);
+			await context.SaveChangesAsync(ct);
+
+			var result = await repo.GetByUserAsync("user1", ct);
+
+			Assert.AreEqual(1, result.Count());
+			Assert.AreEqual("user1", result.First().UserId);
 		}
 	}
 }

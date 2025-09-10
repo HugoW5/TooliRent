@@ -23,7 +23,6 @@ namespace Infrastructure.Repositories
 		public async Task<Guid?> AddAsync(Booking booking, CancellationToken ct = default)
 		{
 			await _context.Bookings.AddAsync(booking, ct);
-			await _context.SaveChangesAsync(ct);
 			return booking.Id;
 		}
 

@@ -23,5 +23,11 @@ namespace Infrastructure.Repositories
 			await _context.SaveChangesAsync(ct);
 			return booking.Id;
 		}
+
+		public async Task DeleteAsync(Booking booking, CancellationToken ct = default)
+		{
+			_context.Bookings.Remove(booking);
+			await _context.SaveChangesAsync(ct);
+		}
 	}
 }

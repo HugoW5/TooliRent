@@ -28,5 +28,15 @@ namespace TooliRent.Controllers
 			return Ok(result);
 		}
 
+		[HttpGet("{id}")]
+		public async Task<ActionResult<ApiResponse<BookingDto?>>> GetBookingById(Guid id, CancellationToken ct)
+		{
+			var result = await _bookingService.GetByIdAsync(id, ct);
+			if (result.IsError)
+				return NotFound(result);
+
+			return Ok(result);
+		}
+
 	}
 }

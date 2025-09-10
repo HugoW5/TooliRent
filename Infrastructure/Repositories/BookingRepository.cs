@@ -23,7 +23,6 @@ namespace Infrastructure.Repositories
 		public async Task<Guid?> AddAsync(Booking booking, CancellationToken ct = default)
 		{
 			await _context.Bookings.AddAsync(booking, ct);
-			await _context.SaveChangesAsync(ct);
 			return booking.Id;
 		}
 
@@ -91,10 +90,10 @@ namespace Infrastructure.Repositories
 				.FirstOrDefaultAsync(b => b.Id == id, ct);
 		}
 
-		public async Task UpdateAsync(Booking booking, CancellationToken ct = default)
+		public Task UpdateAsync(Booking booking, CancellationToken ct = default)
 		{
 			_context.Bookings.Update(booking);
-			await _context.SaveChangesAsync(ct);
+			return Task.CompletedTask;
 		}
 
 	}

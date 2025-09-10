@@ -39,7 +39,9 @@ namespace Application.Services
 			{
 				var tool = await _toolRepo.GetByIdAsync(toolId, ct);
 				if (tool == null)
+				{
 					throw new KeyNotFoundException($"Tool with ID {toolId} not found.");
+				}
 			}
 
 			var booking = new Booking
@@ -55,7 +57,9 @@ namespace Application.Services
 
 			var bookingId = await _repo.AddAsync(booking, ct);
 			if (bookingId == null)
+			{
 				throw new Exception("Failed to create booking.");
+			}
 
 			await _unitOfWork.SaveChangesAsync(ct);
 			return bookingId;
@@ -65,7 +69,9 @@ namespace Application.Services
 		{
 			var existing = await _repo.GetByIdAsync(bookingId, ct);
 			if (existing == null)
+			{
 				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
 
 			_mapper.Map(bookingDto, existing);
 			await _unitOfWork.SaveChangesAsync(ct);
@@ -75,7 +81,9 @@ namespace Application.Services
 		{
 			var existing = await _repo.GetByIdAsync(bookingId, ct);
 			if (existing == null)
+			{
 				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
 
 			await _repo.DeleteAsync(existing, ct);
 			await _unitOfWork.SaveChangesAsync(ct);
@@ -85,7 +93,9 @@ namespace Application.Services
 		{
 			var booking = await _repo.GetByIdAsync(id, ct);
 			if (booking == null)
+			{
 				throw new KeyNotFoundException($"Booking with ID {id} not found.");
+			}
 
 			var dto = _mapper.Map<BookingDto>(booking);
 			return new ApiResponse<BookingDto?>
@@ -100,7 +110,9 @@ namespace Application.Services
 		{
 			var bookings = await _repo.GetAllAsync(ct);
 			if (!bookings.Any())
+			{
 				throw new KeyNotFoundException("No bookings found.");
+			}
 
 			var dtos = _mapper.Map<IEnumerable<BookingDto>>(bookings);
 			return new ApiResponse<IEnumerable<BookingDto>>
@@ -110,6 +122,19 @@ namespace Application.Services
 				Message = "Bookings retrieved successfully"
 			};
 		}
+		public async Task<ApiResponse<IEnumerable<BookingDto>>> GetByUserAsync(string userId, CancellationToken ct = default)
+		{
+			var bookings = await _repo.GetByUserAsync(userId, ct);
+			if (!bookings.Any())
+				throw new KeyNotFoundException($"No bookings found for user {userId}.");
 
+			var dtos = _mapper.Map<IEnumerable<BookingDto>>(bookings);
+			return new ApiResponse<IEnumerable<BookingDto>>
+			{
+				IsError = false,
+				Data = dtos,
+				Message = "Bookings retrieved successfully"
+			};
+		}
 	}
 }

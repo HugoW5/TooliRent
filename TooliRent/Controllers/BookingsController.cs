@@ -99,5 +99,12 @@ namespace TooliRent.Controllers
 
 			return CreatedAtAction(nameof(GetBookingById), new { id = addedBookingId }, addedBooking);
 		}
+
+		[HttpPut("{id}")]
+		public async Task<IActionResult> UpdateBooking(Guid id, [FromBody] UpdateBookingDto bookingDto, CancellationToken ct)
+		{
+			await _bookingService.UpdateAsync(bookingDto, id, ct);
+			return Ok();
+		}
 	}
 }

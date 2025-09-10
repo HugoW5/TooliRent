@@ -104,5 +104,56 @@ namespace Tests.Repositories
 			Assert.AreEqual(1, result.Count());
 			Assert.AreEqual("user1", result.First().UserId);
 		}
+
+		[TestMethod]
+		public async Task GetByStatusAsync_Should_Return_Bookings_With_Status()
+		{
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new BookingRepository(context);
+
+			var booking = new Booking
+			{
+				Id = Guid.NewGuid(),
+				UserId = "user1",
+				StartAt = DateTime.UtcNow,
+				EndAt = DateTime.UtcNow.AddDays(1),
+				Status = BookingStatus.Active
+			};
+
+			await context.Bookings.AddAsync(booking);
+			await context.SaveChangesAsync(ct);
+
+			var result = await repo.GetByStatusAsync(BookingStatus.Active, ct);
+
+			Assert.AreEqual(1, result.Count());
+			Assert.AreEqual(BookingStatus.Active, result.First().Status);
+		}
+
+		[TestMethod]
+		public async Task GetActiveAsync_Should_Return_Active_Bookings()
+		{
+			var ct = CancellationToken.None;
+			var context = GetInMemoryDbContext();
+			var repo = new BookingRepository(context);
+
+			var now = DateTime.UtcNow;
+			var booking = new Booking
+			{
+				Id = Guid.NewGuid(),
+				UserId = "user1",
+				StartAt = now.AddHours(-1),
+				EndAt = now.AddHours(1),
+				Status = BookingStatus.Active
+			};
+
+			await context.Bookings.AddAsync(booking);
+			await context.SaveChangesAsync(ct);
+
+			var result = await repo.GetActiveAsync(ct);
+
+			Assert.AreEqual(1, result.Count());
+			Assert.AreEqual("user1", result.First().UserId);
+		}
 	}
 }

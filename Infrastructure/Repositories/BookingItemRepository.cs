@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.Interfaces.Repositories;
+using Domain.Models;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
-	public class BookingItemRepository
+	public class BookingItemRepository : IBookingItemRepository
 	{
 		private readonly ApplicationDbContext _context;
 

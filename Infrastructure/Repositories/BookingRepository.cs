@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,5 +30,16 @@ namespace Infrastructure.Repositories
 			_context.Bookings.Remove(booking);
 			await _context.SaveChangesAsync(ct);
 		}
+
+		public async Task<IEnumerable<Booking>> GetAllAsync(CancellationToken ct = default)
+		{
+			return await _context.Bookings
+				.Include(b => b.User)
+				.Include(b => b.BookingItems)
+					.ThenInclude(bi => bi.Tool)
+				.AsNoTracking()
+				.ToListAsync(ct);
+		}
+
 	}
 }

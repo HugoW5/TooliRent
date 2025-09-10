@@ -44,6 +44,8 @@ public class Program
 		builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 		builder.Services.AddScoped<IToolRepository, ToolRepository>();
 		builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+		builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+		builder.Services.AddScoped<IBookingItemRepository, BookingItemRepository>();
 		#endregion
 
 		#region Register Unit of Work
@@ -55,6 +57,7 @@ public class Program
 		builder.Services.AddScoped<ITokenService, TokenService>();
 		builder.Services.AddScoped<IToolService, ToolService>();
 		builder.Services.AddScoped<ICategoryService, CategoryService>();
+		builder.Services.AddScoped<IBookingService, BookingService>();
 		#endregion
 
 		//Add AutoMapper

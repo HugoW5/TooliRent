@@ -1,4 +1,5 @@
-﻿using Application.Dto.CategoryDtos;
+﻿using Application.Dto.BookingDtos;
+using Application.Dto.CategoryDtos;
 using Application.Dto.ToolDtos;
 using AutoMapper;
 using Domain.Enums;
@@ -11,6 +12,7 @@ namespace Application.Mappings
 	{
 		public MappingProfile()
 		{
+			// Tool mappings
 			CreateMap<Tool, ToolDto>()
 				.ForMember(dest => dest.Category, opt => opt.MapFrom(src => src.Category.Name))
 				.ForMember(dest => dest.IsAvailable, opt => opt.MapFrom(src => src.Status == ToolStatus.Available));
@@ -21,11 +23,25 @@ namespace Application.Mappings
 				.ForMember(dest => dest.Category, opt => opt.Ignore())
 				.ForMember(dest => dest.Status, opt => opt.MapFrom(src => ToolStatus.Available));
 
+			//Category mappings
 			CreateMap<AddCategoryDto, Category>();
 			CreateMap<UpdateCategoryDto, Category>();
 
 			CreateMap<Category, CategoryDto>();
 			CreateMap<Category , CategoryWithToolsDto>();
+
+			//Booking mappings 
+			CreateMap<Booking, BookingDto>();
+			CreateMap<UpdateBookingDto, Booking>();
+			CreateMap<AddBookingDto, Booking>()
+				.ForMember(dest => dest.BookingItems, opt => opt.Ignore());
+
+			// Booking with items
+			CreateMap<Booking, BookingWithItemsDto>();
+
+			// --- BookingItem mappings ---
+			CreateMap<BookingItem, BookingItemDto>()
+				.ForMember(dest => dest.ToolName, opt => opt.MapFrom(src => src.Tool.Name));
 		}
 	}
 }

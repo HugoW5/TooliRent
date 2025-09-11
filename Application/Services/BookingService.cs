@@ -8,6 +8,7 @@ using Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,20 +33,43 @@ namespace Application.Services
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task<Guid?> AddAsync(AddBookingDto addBookingDto, CancellationToken ct = default)
+		public async Task<Guid?> AddAsync(AddBookingDto addBookingDto, ClaimsPrincipal user, CancellationToken ct = default)
 		{
-			// Validate tool IDs exist
+			var role = user.FindFirstValue(ClaimTypes.Role);
+			var claimUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			if (role == "Member")
+			{
+				if (string.IsNullOrEmpty(claimUserId))
+				{
+					throw new UnauthorizedAccessException("User ID claim is missing.");
+				}
+
+				addBookingDto.UserId = claimUserId;
+			}
+			else if (role == "Admin")
+			{
+				if (string.IsNullOrWhiteSpace(addBookingDto.UserId))
+				{
+					throw new ArgumentException("Admin must provide UserId when booking for a member.");
+				}
+			}
+			else
+			{
+				throw new UnauthorizedAccessException("Invalid role for booking.");
+			}
+
+			// Validate tool IDs
 			foreach (var toolId in addBookingDto.ToolIds)
 			{
 				var tool = await _toolRepo.GetByIdAsync(toolId, ct);
 				if (tool == null)
-				{
 					throw new KeyNotFoundException($"Tool with ID {toolId} not found.");
-				}
+
 				if (tool.Status != ToolStatus.Available)
-				{
 					throw new InvalidOperationException($"Tool with ID {toolId} is not available for booking.");
-				}
+
+				tool.Status = ToolStatus.Booked;
 			}
 
 			var booking = new Booking
@@ -61,13 +85,12 @@ namespace Application.Services
 
 			var bookingId = await _repo.AddAsync(booking, ct);
 			if (bookingId == null)
-			{
 				throw new Exception("Failed to create booking.");
-			}
 
 			await _unitOfWork.SaveChangesAsync(ct);
 			return bookingId;
 		}
+
 
 		public async Task UpdateAsync(UpdateBookingDto bookingDto, Guid bookingId, CancellationToken ct = default)
 		{

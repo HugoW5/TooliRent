@@ -68,7 +68,7 @@ namespace TooliRent.Controllers
 		public async Task<IActionResult> UpdateTool(Guid id, [FromBody] UpdateToolDto updateToolDto, CancellationToken ct)
 		{
 			await _toolService.UpdateAsync(updateToolDto, id, ct);
-			return NoContent();
+			return Ok();
 		}
 
 		[HttpDelete("{id}")]

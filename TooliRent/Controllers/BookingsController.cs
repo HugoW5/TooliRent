@@ -97,10 +97,10 @@ namespace TooliRent.Controllers
 		}
 
 
-		[HttpPost("add")]
+		[HttpPost("create")]
 		public async Task<ActionResult<ApiResponse<Guid?>>> AddBooking([FromBody] AddBookingDto addBookingDto, CancellationToken ct)
 		{
-			var addedBookingId = await _bookingService.AddAsync(addBookingDto, ct);
+			var addedBookingId = await _bookingService.AddAsync(addBookingDto, User, ct);
 
 			var addedBooking = await _bookingService.GetByIdAsync(addedBookingId.Value, ct);
 			addedBooking.Message = "Booking created successfully";

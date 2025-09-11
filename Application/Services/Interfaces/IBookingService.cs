@@ -4,6 +4,7 @@ using Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace Application.Services.Interfaces
 {
 	public interface IBookingService
 	{
-		Task<Guid?> AddAsync(AddBookingDto addBookingDto, CancellationToken ct = default);
+		Task<Guid?> AddAsync(AddBookingDto addBookingDto, ClaimsPrincipal user, CancellationToken ct = default);
 		Task UpdateAsync(UpdateBookingDto bookingDto, Guid bookingId, CancellationToken ct = default);
 		Task DeleteAsync(Guid bookingId, CancellationToken ct = default);
 

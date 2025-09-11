@@ -8,6 +8,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -51,26 +52,38 @@ namespace Tests.Services
 			// Arrange
 			var bookingDto = new AddBookingDto
 			{
-				UserId = "user1",
+				UserId = "user1", // for Admin test
 				StartAt = DateTime.UtcNow,
 				EndAt = DateTime.UtcNow.AddDays(1),
 				ToolIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
 			};
 
+			// Mock tools as available
 			_toolRepoMock.Setup(tr => tr.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync((Guid id, CancellationToken ct) => new Tool { Id = id, Status = ToolStatus.Available });
 
+			// Mock booking repository
 			var bookingId = Guid.NewGuid();
 			_repoMock.Setup(r => r.AddAsync(It.IsAny<Booking>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(bookingId);
 
+			// Create fake Admin user
+			var claims = new List<Claim>
+	{
+		new Claim(ClaimTypes.Role, "Admin"),
+		new Claim(ClaimTypes.NameIdentifier, "admin-123")
+	};
+			var identity = new ClaimsIdentity(claims, "mock");
+			var controllerUser = new ClaimsPrincipal(identity);
+
 			// Act
-			var result = await _service.AddAsync(bookingDto);
+			var result = await _service.AddAsync(bookingDto, controllerUser);
 
 			// Assert
 			Assert.AreEqual(bookingId, result);
 			_uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 		}
+
 
 		[TestMethod]
 		[ExpectedException(typeof(KeyNotFoundException))]
@@ -88,8 +101,17 @@ namespace Tests.Services
 			_toolRepoMock.Setup(tr => tr.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync((Tool)null!);
 
+			// Create fake Admin user
+			var claims = new List<Claim>
+	{
+		new Claim(ClaimTypes.Role, "Admin"),
+		new Claim(ClaimTypes.NameIdentifier, "admin-123")
+	};
+			var identity = new ClaimsIdentity(claims, "mock");
+			var controllerUser = new ClaimsPrincipal(identity);
+
 			// Act
-			await _service.AddAsync(bookingDto);
+			await _service.AddAsync(bookingDto, controllerUser);
 		}
 
 
@@ -109,8 +131,17 @@ namespace Tests.Services
 			_toolRepoMock.Setup(tr => tr.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(new Tool { Id = Guid.NewGuid(), Status = ToolStatus.Booked });
 
+			// Create fake Admin user
+			var claims = new List<Claim>
+	{
+		new Claim(ClaimTypes.Role, "Admin"),
+		new Claim(ClaimTypes.NameIdentifier, "admin-123")
+	};
+			var identity = new ClaimsIdentity(claims, "mock");
+			var controllerUser = new ClaimsPrincipal(identity);
+
 			// Act
-			await _service.AddAsync(bookingDto);
+			await _service.AddAsync(bookingDto, controllerUser);
 		}
 
 		[TestMethod]

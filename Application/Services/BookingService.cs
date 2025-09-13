@@ -59,6 +59,16 @@ namespace Application.Services
 				throw new UnauthorizedAccessException("Invalid role for booking.");
 			}
 
+			if (addBookingDto.StartAt >= addBookingDto.EndAt)
+			{
+				throw new ArgumentException("Start date must be earlier than end date.");
+			}
+
+			if (addBookingDto.StartAt < DateTime.UtcNow)
+			{
+				throw new ArgumentException("Start date cannot be in the past.");
+			}
+
 			// Validate tool IDs
 			foreach (var toolId in addBookingDto.ToolIds)
 			{

@@ -53,8 +53,8 @@ namespace Tests.Services
 			var bookingDto = new AddBookingDto
 			{
 				UserId = "user1", // for Admin test
-				StartAt = DateTime.UtcNow,
-				EndAt = DateTime.UtcNow.AddDays(1),
+				StartAt = DateTime.UtcNow.AddDays(1),
+				EndAt = DateTime.UtcNow.AddDays(3),
 				ToolIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
 			};
 
@@ -93,8 +93,8 @@ namespace Tests.Services
 			var bookingDto = new AddBookingDto
 			{
 				UserId = "user1",
-				StartAt = DateTime.UtcNow,
-				EndAt = DateTime.UtcNow.AddDays(1),
+				StartAt = DateTime.UtcNow.AddDays(1),
+				EndAt = DateTime.UtcNow.AddDays(5),
 				ToolIds = new List<Guid> { Guid.NewGuid() }
 			};
 
@@ -123,8 +123,8 @@ namespace Tests.Services
 			var bookingDto = new AddBookingDto
 			{
 				UserId = "user1",
-				StartAt = DateTime.UtcNow,
-				EndAt = DateTime.UtcNow.AddDays(1),
+				StartAt = DateTime.UtcNow.AddDays(1),
+				EndAt = DateTime.UtcNow.AddDays(3),
 				ToolIds = new List<Guid> { Guid.NewGuid() }
 			};
 

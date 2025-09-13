@@ -59,6 +59,16 @@ namespace Application.Services
 				throw new UnauthorizedAccessException("Invalid role for booking.");
 			}
 
+			if (addBookingDto.StartAt >= addBookingDto.EndAt)
+			{
+				throw new ArgumentException("Start date must be earlier than end date.");
+			}
+
+			if (addBookingDto.StartAt < DateTime.UtcNow)
+			{
+				throw new ArgumentException("Start date cannot be in the past.");
+			}
+
 			// Validate tool IDs
 			foreach (var toolId in addBookingDto.ToolIds)
 			{
@@ -132,12 +142,19 @@ namespace Application.Services
 				Message = "Booking retrieved successfully"
 			};
 		}
-		public async Task ReturnBookingAsync(Guid bookingId, CancellationToken ct = default)
+		public async Task<ApiResponse> ReturnBookingAsync(Guid bookingId, CancellationToken ct = default)
 		{
+			string responseMessage = "Booking returned successfully";
+
 			var booking = await _repo.GetWithItemsAsync(bookingId, ct);
 			if (booking == null)
 			{
 				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
+
+			if(booking.EndAt < DateTime.UtcNow)
+			{
+				responseMessage = "Overdue Booking returned successfully";
 			}
 
 			// Mark booking as returned
@@ -154,6 +171,11 @@ namespace Application.Services
 			}
 
 			await _unitOfWork.SaveChangesAsync(ct);
+			return new ApiResponse
+			{
+				IsError = false,
+				Message = responseMessage
+			};
 		}
 
 		public async Task<ApiResponse<IEnumerable<BookingDto>>> GetAllAsync(CancellationToken ct = default)

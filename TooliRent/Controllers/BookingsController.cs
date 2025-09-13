@@ -90,10 +90,10 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpPost("{id}/return")]
-		public async Task<IActionResult> ReturnBooking(Guid id, CancellationToken ct)
+		public async Task<ActionResult<ApiResponse>> ReturnBooking(Guid id, CancellationToken ct)
 		{
-			await _bookingService.ReturnBookingAsync(id, ct);
-			return Ok(new { Message = "Booking returned successfully" });
+			var response = await _bookingService.ReturnBookingAsync(id, ct);
+			return Ok(response);
 		}
 
 

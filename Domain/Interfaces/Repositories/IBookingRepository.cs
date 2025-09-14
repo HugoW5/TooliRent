@@ -22,5 +22,6 @@ namespace Domain.Interfaces.Repositories
 		Task<IEnumerable<Booking>> GetByStatusAsync(BookingStatus status, CancellationToken ct = default);
 		Task<IEnumerable<Booking>> GetActiveAsync(CancellationToken ct = default); // StartAt <= Now <= EndAt
 		Task<Booking?> GetWithItemsAsync(Guid id, CancellationToken ct = default);
+		Task<bool> HasBookingConflictAsync(Guid toolId, DateTime startAt, DateTime endAt, CancellationToken ct = default);
 	}
 }

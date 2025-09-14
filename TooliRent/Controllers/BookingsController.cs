@@ -121,5 +121,16 @@ namespace TooliRent.Controllers
 			await _bookingService.DeleteAsync(id, ct);
 			return NoContent();
 		}
+
+		[HttpPost("{id}/pickup")]
+		public async Task<ActionResult<ApiResponse>> PickupBooking(Guid id, CancellationToken ct)
+		{
+			var response = await _bookingService.PickupBookingAsync(id, ct);
+			if (response.IsError)
+				return BadRequest(response);
+
+			return Ok(response);
+		}
+
 	}
 }

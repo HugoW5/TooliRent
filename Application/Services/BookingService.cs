@@ -59,12 +59,15 @@ namespace Application.Services
 				throw new UnauthorizedAccessException("Invalid role for booking.");
 			}
 
-			if (addBookingDto.StartAt >= addBookingDto.EndAt)
+			var startAtUtc = DateTime.SpecifyKind(addBookingDto.StartAt, DateTimeKind.Utc);
+			var endAtUtc = DateTime.SpecifyKind(addBookingDto.EndAt, DateTimeKind.Utc);
+
+			if (startAtUtc >= endAtUtc)
 			{
 				throw new ArgumentException("Start date must be earlier than end date.");
 			}
 
-			if (addBookingDto.StartAt < DateTime.UtcNow)
+			if (startAtUtc < DateTime.UtcNow)
 			{
 				throw new ArgumentException("Start date cannot be in the past.");
 			}
@@ -259,5 +262,45 @@ namespace Application.Services
 				Message = "Booking with items retrieved successfully"
 			};
 		}
+
+		public async Task<ApiResponse> PickupBookingAsync(Guid bookingId, CancellationToken ct = default)
+		{
+			var booking = await _repo.GetWithItemsAsync(bookingId, ct);
+			if (booking == null)
+			{
+				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
+
+			if (booking.Status != BookingStatus.Reserved)
+			{
+				throw new InvalidOperationException("Only reserved bookings can be picked up.");
+			}
+
+			// Normalize DB value to UTC
+			var startAtUtc = DateTime.SpecifyKind(booking.StartAt, DateTimeKind.Utc);
+			if (startAtUtc > DateTime.UtcNow)
+			{
+				throw new InvalidOperationException("Cannot pick up before the booking start time.");
+			}
+
+			booking.Status = BookingStatus.Active;
+
+			foreach (var item in booking.BookingItems)
+			{
+				var tool = await _toolRepo.GetByIdAsync(item.ToolId, ct);
+				if (tool != null)
+					tool.Status = ToolStatus.Borrowed;
+			}
+
+			await _unitOfWork.SaveChangesAsync(ct);
+
+			return new ApiResponse
+			{
+				IsError = false,
+				Message = "Booking picked up successfully"
+			};
+		}
+
+
 	}
 }

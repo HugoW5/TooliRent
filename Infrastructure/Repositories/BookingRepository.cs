@@ -96,5 +96,13 @@ namespace Infrastructure.Repositories
 			return Task.CompletedTask;
 		}
 
+		public async Task<bool> HasBookingConflictAsync(Guid toolId, DateTime startAt, DateTime endAt, CancellationToken ct = default)
+		{
+			return await _context.Bookings
+				.Where(b => b.BookingItems.Any(i => i.ToolId == toolId))
+				.Where(b => b.Status == BookingStatus.Reserved || b.Status == BookingStatus.Active)
+				.AnyAsync(b => b.StartAt < endAt && startAt < b.EndAt, ct);
+		}
+
 	}
 }

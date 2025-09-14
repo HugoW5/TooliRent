@@ -76,10 +76,16 @@ namespace Application.Services
 				if (tool == null)
 					throw new KeyNotFoundException($"Tool with ID {toolId} not found.");
 
-				if (tool.Status != ToolStatus.Available)
+				if (tool.Status == ToolStatus.Maintenance || tool.Status == ToolStatus.Retired)
+				{
 					throw new InvalidOperationException($"Tool with ID {toolId} is not available for booking.");
+				}
 
-				tool.Status = ToolStatus.Booked;
+				var hasConflict = await _repo.HasBookingConflictAsync(toolId, addBookingDto.StartAt, addBookingDto.EndAt, ct);
+				if (hasConflict)
+				{
+					throw new InvalidOperationException($"Tool with ID {toolId} is already booked in the requested time window.");
+				}
 			}
 
 			var booking = new Booking

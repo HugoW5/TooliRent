@@ -18,6 +18,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("all")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetAllBookings(CancellationToken ct)
 		{
 			var result = await _bookingService.GetAllAsync(ct);
@@ -30,6 +31,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<BookingDto?>>> GetBookingById(Guid id, CancellationToken ct)
 		{
 			var result = await _bookingService.GetByIdAsync(id, ct);
@@ -42,6 +44,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}/items")]
+		[ProducesResponseType(typeof(ApiResponse<BookingWithItemsDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<BookingWithItemsDto?>>> GetBookingWithItems(Guid id, CancellationToken ct)
 		{
 			var result = await _bookingService.GetWithItemsAsync(id, ct);
@@ -54,6 +57,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("user/{userId}")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetBookingsByUser(string userId, CancellationToken ct)
 		{
 			var result = await _bookingService.GetByUserAsync(userId, ct);
@@ -66,6 +70,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("status/{status}")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetBookingsByStatus(BookingStatus status, CancellationToken ct)
 		{
 			var result = await _bookingService.GetByStatusAsync(status, ct);
@@ -78,6 +83,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("active")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetActiveBookings(CancellationToken ct)
 		{
 			var result = await _bookingService.GetActiveAsync(ct);
@@ -90,6 +96,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpPost("{id}/return")]
+		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse>> ReturnBooking(Guid id, CancellationToken ct)
 		{
 			var response = await _bookingService.ReturnBookingAsync(id, ct);
@@ -98,6 +105,7 @@ namespace TooliRent.Controllers
 
 
 		[HttpPost("create")]
+		[ProducesResponseType(typeof(ApiResponse<Guid?>), StatusCodes.Status201Created)]
 		public async Task<ActionResult<ApiResponse<Guid?>>> AddBooking([FromBody] AddBookingDto addBookingDto, CancellationToken ct)
 		{
 			var addedBookingId = await _bookingService.AddAsync(addBookingDto, User, ct);
@@ -109,6 +117,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpPut("{id}")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> UpdateBooking(Guid id, [FromBody] UpdateBookingDto bookingDto, CancellationToken ct)
 		{
 			await _bookingService.UpdateAsync(bookingDto, id, ct);
@@ -116,6 +125,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpDelete("{id}")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> DeleteBooking(Guid id, CancellationToken ct)
 		{
 			await _bookingService.DeleteAsync(id, ct);
@@ -123,11 +133,15 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpPost("{id}/pickup")]
+		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<ApiResponse>> PickupBooking(Guid id, CancellationToken ct)
 		{
 			var response = await _bookingService.PickupBookingAsync(id, ct);
 			if (response.IsError)
+			{
 				return BadRequest(response);
+			}
 
 			return Ok(response);
 		}

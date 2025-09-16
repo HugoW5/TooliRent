@@ -16,6 +16,7 @@ using Application.Validators;
 using Domain.Interfaces.Repositories;
 using Application.Mappings;
 using Application.Services.Interfaces;
+using Application.Metrics;
 
 namespace TooliRent;
 
@@ -59,6 +60,12 @@ public class Program
 		builder.Services.AddScoped<ICategoryService, CategoryService>();
 		builder.Services.AddScoped<IBookingService, BookingService>();
 		#endregion
+
+		#region Register Aspire metrics
+		builder.Services.AddSingleton<AuthMetrics>();
+		#endregion
+
+
 
 		//Add AutoMapper
 		builder.Services.AddAutoMapper(cfg =>

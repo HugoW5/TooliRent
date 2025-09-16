@@ -17,6 +17,7 @@ using Domain.Interfaces.Repositories;
 using Application.Mappings;
 using Application.Services.Interfaces;
 using Application.Metrics;
+using Application.Metrics.Interfaces;
 
 namespace TooliRent;
 
@@ -62,7 +63,7 @@ public class Program
 		#endregion
 
 		#region Register Aspire metrics
-		builder.Services.AddSingleton<AuthMetrics>();
+		builder.Services.AddSingleton<IAuthMetrics, AuthMetrics>();
 		#endregion
 
 

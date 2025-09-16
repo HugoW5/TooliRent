@@ -77,9 +77,11 @@ namespace Application.Services
 			{
 				var tool = await _toolRepo.GetByIdAsync(toolId, ct);
 				if (tool == null)
+				{
 					throw new KeyNotFoundException($"Tool with ID {toolId} not found.");
+				}
 
-				if (tool.Status == ToolStatus.Maintenance || tool.Status == ToolStatus.Retired)
+				if (tool.Status != ToolStatus.Available)
 				{
 					throw new InvalidOperationException($"Tool with ID {toolId} is not available for booking.");
 				}

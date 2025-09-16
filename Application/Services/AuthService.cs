@@ -1,4 +1,5 @@
 ﻿using Application.Metrics;
+using Application.Metrics.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.ServiceInterfaces;
 using Domain.Models;
@@ -19,14 +20,14 @@ namespace TooliRent.Services
 		private readonly ITokenService _tokenService;
 		private readonly IConfiguration _config;
 		private readonly UserManager<IdentityUser> _userManager;
-		private readonly AuthMetrics _metrics;
+		private readonly IAuthMetrics _metrics;
 
 		public AuthService(
 			IRefreshTokenRepository tokenRepo,
 			ITokenService tokenService,
 			IConfiguration config,
 			UserManager<IdentityUser> userManager,
-			AuthMetrics metrics)
+			IAuthMetrics metrics)
 		{
 			_tokenRepo = tokenRepo;
 			_tokenService = tokenService;

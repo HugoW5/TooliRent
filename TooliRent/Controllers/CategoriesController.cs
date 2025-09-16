@@ -17,6 +17,8 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("all")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<CategoryDto>>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDto>>>> GetAllCategories(CancellationToken ct)
 		{
 			var categories = await _categoryService.GetAllAsync(ct);
@@ -45,6 +47,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpPut("{id}")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryDto categoryDto, CancellationToken ct)
 		{
 
@@ -53,6 +56,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpDelete("{id}")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> DeleteCategory(Guid id, CancellationToken ct)
 		{
 			await _categoryService.DeleteAsync(id, ct);
@@ -60,6 +64,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpPost("add")]
+		[ProducesResponseType(typeof(ApiResponse<Guid?>), StatusCodes.Status201Created)]
 		public async Task<ActionResult<ApiResponse<Guid?>>> AddCategory([FromBody] AddCategoryDto addCategoryDto, CancellationToken ct)
 		{
 			var addedCategoryId = await _categoryService.AddAsync(addCategoryDto, ct);
@@ -69,6 +74,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("search")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<CategoryDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDto>>>> SearchCategoriesByName([FromQuery] string name, CancellationToken ct)
 		{
 			var result = await _categoryService.SearchByNameAsync(name, ct);
@@ -80,6 +86,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}/tools")]
+		[ProducesResponseType(typeof(ApiResponse<CategoryWithToolsDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<CategoryWithToolsDto?>>> GetCategoryWithTools(Guid id, CancellationToken ct)
 		{
 			var result = await _categoryService.GetWithToolsAsync(id, ct);

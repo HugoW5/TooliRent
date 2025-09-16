@@ -36,6 +36,13 @@ namespace TooliRent.Services
 			_metrics = metrics;
 		}
 
+		/// <summary>
+		/// Registers and adds a Member role to a new user
+		/// </summary>
+		/// <param name="dto">Registration dto</param>
+		/// <returns>returns an apiresponse with a tokendto</returns>
+		/// <exception cref="ArgumentException">Invalid validaiton</exception>
+		/// <exception cref="IdentityException">Falied to create user</exception>
 		public async Task<ApiResponse<TokenDto>> RegisterAsync(RegisterDto dto)
 		{
 			if (dto.Password != dto.ConfirmPassword)
@@ -84,6 +91,12 @@ namespace TooliRent.Services
 			};
 		}
 
+		/// <summary>
+		/// Logs in a user and returns a token dto with refresh and token.
+		/// </summary>
+		/// <param name="dto">The login credentials</param>
+		/// <returns>An ApiResponse with a token and a refresh token</returns>
+		/// <exception cref="UnauthorizedAccessException"></exception>
 		public async Task<ApiResponse<TokenDto>> LoginAsync(LoginDto dto)
 		{
 			var sw = Stopwatch.StartNew();
@@ -126,7 +139,15 @@ namespace TooliRent.Services
 				_metrics.RecordDuration("login", sw.ElapsedMilliseconds);
 			}
 		}
-
+		
+		/// <summary>
+		/// Refreshes the JWT token and returns a new token and refresh token, updates the used refresh tokenes status to used.
+		/// </summary>
+		/// <param name="refreshToken">JWT refresh token</param>
+		/// <param name="ct">Cancellation token</param>
+		/// <returns>A tokenDto with JWT token and refesh token</returns>
+		/// <exception cref="UnauthorizedAccessException">Invalid or expired refresh token</exception>
+		/// <exception cref="InvalidOperationException">User not matching token</exception>
 		public async Task<ApiResponse<TokenDto>> RefreshTokenAsync(string refreshToken, CancellationToken ct = default)
 		{
 			var storedToken = await _tokenRepo.GetRefreshTokenAsync(refreshToken, ct);

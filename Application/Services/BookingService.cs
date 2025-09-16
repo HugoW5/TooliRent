@@ -33,6 +33,20 @@ namespace Application.Services
 			_unitOfWork = unitOfWork;
 		}
 
+		/// <summary>
+		/// Creates a new booking for the speficied user. If the users role is member they do not need to speficy 
+		/// a user id in the add booking dto because the methods gets the userid form the Claims.
+		/// If the requesters role is Admin they need to speficy a user id of a member
+		/// </summary>
+		/// <param name="addBookingDto">The booking dto</param>
+		/// <param name="user">Whoever is loggedin</param>
+		/// <param name="ct">Cancellation token</param>
+		/// <returns>The id of the created booking</returns>
+		/// <exception cref="UnauthorizedAccessException">User is unauthorized</exception>
+		/// <exception cref="ArgumentException">Invalid data</exception>
+		/// <exception cref="KeyNotFoundException">Tool with the speficied id is not found</exception>
+		/// <exception cref="InvalidOperationException">The tool is already booked</exception>
+		/// <exception cref="Exception">Generic exception</exception>
 		public async Task<Guid?> AddAsync(AddBookingDto addBookingDto, ClaimsPrincipal user, CancellationToken ct = default)
 		{
 			var role = user.FindFirstValue(ClaimTypes.Role);
@@ -112,7 +126,14 @@ namespace Application.Services
 			return bookingId;
 		}
 
-
+		/// <summary>
+		/// Updates a booking, should only be used by Admins
+		/// </summary>
+		/// <param name="bookingDto">New data for the booking we are updating</param>
+		/// <param name="bookingId">Id of the booking that we are updating</param>
+		/// <param name="ct">Cancellation token</param>
+		/// <returns>Nothing</returns>
+		/// <exception cref="KeyNotFoundException">Booking does not exist</exception>
 		public async Task UpdateAsync(UpdateBookingDto bookingDto, Guid bookingId, CancellationToken ct = default)
 		{
 			var existing = await _repo.GetByIdAsync(bookingId, ct);
@@ -125,6 +146,13 @@ namespace Application.Services
 			await _unitOfWork.SaveChangesAsync(ct);
 		}
 
+		/// <summary>
+		/// Deletes a booking, should only be used by Admins 
+ 		/// </summary>
+		/// <param name="bookingId">The id of the booking we are deleting</param>
+		/// <param name="ct">Cancellation token</param>
+		/// <returns></returns>
+		/// <exception cref="KeyNotFoundException"></exception>
 		public async Task DeleteAsync(Guid bookingId, CancellationToken ct = default)
 		{
 			var existing = await _repo.GetByIdAsync(bookingId, ct);
@@ -137,6 +165,13 @@ namespace Application.Services
 			await _unitOfWork.SaveChangesAsync(ct);
 		}
 
+		/// <summary>
+		/// Gets a booking by id, should only be used by Admins
+		/// </summary>
+		/// <param name="id">The </param>
+		/// <param name="ct"></param>
+		/// <returns></returns>
+		/// <exception cref="KeyNotFoundException"></exception>
 		public async Task<ApiResponse<BookingDto?>> GetByIdAsync(Guid id, CancellationToken ct = default)
 		{
 			var booking = await _repo.GetByIdAsync(id, ct);
@@ -153,6 +188,15 @@ namespace Application.Services
 				Message = "Booking retrieved successfully"
 			};
 		}
+		
+		/// <summary>
+		/// Returns a booking and marks all tools as available again,
+		/// should be used by Members when they returns their tools
+		/// </summary>
+		/// <param name="bookingId"></param>
+		/// <param name="ct"></param>
+		/// <returns></returns>
+		/// <exception cref="KeyNotFoundException"></exception>
 		public async Task<ApiResponse> ReturnBookingAsync(Guid bookingId, CancellationToken ct = default)
 		{
 			string responseMessage = "Booking returned successfully";
@@ -189,6 +233,12 @@ namespace Application.Services
 			};
 		}
 
+		/// <summary>
+		/// Gets all bookings, should only be used by Admins
+		/// </summary>
+		/// <param name="ct"></param>
+		/// <returns>Returns all bookings</returns>
+		/// <exception cref="KeyNotFoundException">No bookings found</exception>
 		public async Task<ApiResponse<IEnumerable<BookingDto>>> GetAllAsync(CancellationToken ct = default)
 		{
 			var bookings = await _repo.GetAllAsync(ct);
@@ -205,6 +255,18 @@ namespace Application.Services
 				Message = "Bookings retrieved successfully"
 			};
 		}
+		
+		/// <summary>
+		/// Retrieves a collection of bookings associated with the specified user.
+		/// </summary>
+		/// <remarks>Use this method to retrieve all bookings associated with a specific user. If no bookings are
+		/// found,  a <see cref="KeyNotFoundException"/> is thrown. Ensure that the <paramref name="userId"/> is valid  and
+		/// not null or empty before calling this method.</remarks>
+		/// <param name="userId">The unique identifier of the user whose bookings are to be retrieved. Cannot be null or empty.</param>
+		/// <param name="ct">An optional <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+		/// <returns>An <see cref="ApiResponse{T}"/> containing an enumerable collection of <see cref="BookingDto"/> objects 
+		/// representing the user's bookings. The response includes a success message if bookings are found.</returns>
+		/// <exception cref="KeyNotFoundException">Thrown if no bookings are found for the specified user.</exception>
 		public async Task<ApiResponse<IEnumerable<BookingDto>>> GetByUserAsync(string userId, CancellationToken ct = default)
 		{
 			var bookings = await _repo.GetByUserAsync(userId, ct);
@@ -220,6 +282,14 @@ namespace Application.Services
 			};
 		}
 
+		/// <summary>
+		/// Retrieves a collection of bookings that match the specified status.
+		/// </summary>
+		/// <param name="status">The status of the bookings to retrieve.</param>
+		/// <param name="ct">An optional <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+		/// <returns>An <see cref="ApiResponse{T}"/> containing an enumerable collection of <see cref="BookingDto"/> objects  that
+		/// represent the bookings with the specified status.</returns>
+		/// <exception cref="KeyNotFoundException">Thrown if no bookings are found with the specified <paramref name="status"/>.</exception>
 		public async Task<ApiResponse<IEnumerable<BookingDto>>> GetByStatusAsync(BookingStatus status, CancellationToken ct = default)
 		{
 			var bookings = await _repo.GetByStatusAsync(status, ct);
@@ -235,6 +305,12 @@ namespace Application.Services
 			};
 		}
 
+		/// <summary>
+		/// Gets all active bookings, should be used by Admins
+		/// </summary>
+		/// <param name="ct"></param>
+		/// <returns>Rerturns the an Ienumarble of bookingdtos</returns>
+		/// <exception cref="KeyNotFoundException"></exception>
 		public async Task<ApiResponse<IEnumerable<BookingDto>>> GetActiveAsync(CancellationToken ct = default)
 		{
 			var bookings = await _repo.GetActiveAsync(ct);
@@ -250,6 +326,17 @@ namespace Application.Services
 			};
 		}
 
+		/// <summary>
+		/// Retrieves a booking along with its associated items by the specified identifier.
+		/// </summary>
+		/// <remarks>The returned <see cref="ApiResponse{T}"/> will have <see cref="ApiResponse{T}.IsError"/> set to
+		/// <see langword="false"/>  and <see cref="ApiResponse{T}.Message"/> set to "Booking with items retrieved
+		/// successfully" if the operation succeeds.</remarks>
+		/// <param name="id">The unique identifier of the booking to retrieve.</param>
+		/// <param name="ct">An optional <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+		/// <returns>An <see cref="ApiResponse{T}"/> containing the booking and its associated items as a <see
+		/// cref="BookingWithItemsDto"/>.  If no booking is found, the method throws a <see cref="KeyNotFoundException"/>.</returns>
+		/// <exception cref="KeyNotFoundException">Thrown if a booking with the specified <paramref name="id"/> is not found.</exception>
 		public async Task<ApiResponse<BookingWithItemsDto?>> GetWithItemsAsync(Guid id, CancellationToken ct = default)
 		{
 			var booking = await _repo.GetWithItemsAsync(id, ct);
@@ -265,6 +352,14 @@ namespace Application.Services
 			};
 		}
 
+		/// <summary>
+		/// Picks up the booking by marking the tools as borrowed and the booking as active
+		/// </summary>
+		/// <param name="bookingId">The booking id</param>
+		/// <param name="ct"></param>
+		/// <returns>A Success message</returns>
+		/// <exception cref="KeyNotFoundException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		public async Task<ApiResponse> PickupBookingAsync(Guid bookingId, CancellationToken ct = default)
 		{
 			var booking = await _repo.GetWithItemsAsync(bookingId, ct);

@@ -1,4 +1,8 @@
-﻿using Domain.Interfaces.ServiceInterfaces;
+﻿using Application.Metrics;
+using Application.Metrics.Interfaces;
+using Domain.Interfaces.Repositories;
+using Domain.Interfaces.ServiceInterfaces;
+using Dto.AuthDtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -6,8 +10,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using TooliRent.Exceptions;
 using TooliRent.Services;
-using Dto.AuthDtos;
-using Domain.Interfaces.Repositories;
 
 namespace Tests.Services
 {
@@ -19,6 +21,8 @@ namespace Tests.Services
 		private Mock<IConfiguration> _configMock = null!;
 		private UserManager<IdentityUser> _userManager = null!;
 		private AuthService _authService = null!;
+		private Mock<IAuthMetrics> _metricsMock = null!;
+
 
 		[TestInitialize]
 		public void Setup()
@@ -26,12 +30,12 @@ namespace Tests.Services
 			_tokenRepoMock = new Mock<IRefreshTokenRepository>();
 			_tokenServiceMock = new Mock<ITokenService>();
 			_configMock = new Mock<IConfiguration>();
+			_metricsMock = new Mock<IAuthMetrics>();
 
-			// Mock IConfiguration["JwtSettings:RefreshTokenExpiryDays"]
 			_configMock.Setup(c => c["JwtSettings:RefreshTokenExpiryDays"]).Returns("7");
 
-			// Setup UserManager with in-memory store
 			var store = new Mock<IUserStore<IdentityUser>>();
+
 			var passwordStore = store.As<IUserPasswordStore<IdentityUser>>();
 			passwordStore
 				.Setup(x => x.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<CancellationToken>()))
@@ -39,9 +43,15 @@ namespace Tests.Services
 			passwordStore
 				.Setup(x => x.SetPasswordHashAsync(It.IsAny<IdentityUser>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
 				.Returns(Task.CompletedTask);
-			var roleStore = store.As<IUserRoleStore<IdentityUser>>();
-			var emailStore = store.As<IUserEmailStore<IdentityUser>>();
-			// Mock a working UserManager
+
+			store.As<IUserEmailStore<IdentityUser>>()
+				.Setup(x => x.FindByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+				.ReturnsAsync((string email, CancellationToken _) => null); // no user found
+
+			store.As<IUserRoleStore<IdentityUser>>()
+				.Setup(x => x.AddToRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+				.Returns(Task.CompletedTask);
+
 			_userManager = new UserManager<IdentityUser>(
 				store.Object,
 				Options.Create(new IdentityOptions()),
@@ -54,14 +64,16 @@ namespace Tests.Services
 				Mock.Of<ILogger<UserManager<IdentityUser>>>()
 			);
 
-			// Initialize AuthService
 			_authService = new AuthService(
 				_tokenRepoMock.Object,
 				_tokenServiceMock.Object,
 				_configMock.Object,
-				_userManager
-			); ;
+				_userManager,
+				_metricsMock.Object
+			);
 		}
+
+
 
 		[TestMethod]
 		[ExpectedException(typeof(ArgumentException))]

@@ -109,7 +109,7 @@ namespace Tests.Repositories
 
 			// Assert
 			var updatedCategory = await repo.GetByIdAsync(category.Id, ct);
-			Assert.AreEqual("UpdatedHardware", updatedCategory.Name);
+			Assert.AreEqual("UpdatedHardware", updatedCategory!.Name);
 		}
 
 		[TestMethod]

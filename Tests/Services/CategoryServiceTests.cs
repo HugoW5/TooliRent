@@ -130,7 +130,7 @@ namespace Tests.Services
 
 			// Assert
 			Assert.IsFalse(response.IsError);
-			Assert.AreEqual(category.Id, response.Data.Id);
+			Assert.AreEqual(category.Id, response.Data!.Id);
 			Assert.AreEqual("Hardware", response.Data.Name);
 		}
 		[TestMethod]
@@ -170,7 +170,7 @@ namespace Tests.Services
 
 			// Assert
 			Assert.IsFalse(response.IsError);
-			Assert.AreEqual(1, response.Data.Tools.Count());
+			Assert.AreEqual(1, response.Data!.Tools.Count());
 			Assert.AreEqual("Hammer", response.Data.Tools.First().Name);
 		}
 	}

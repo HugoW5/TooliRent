@@ -1,8 +1,9 @@
-﻿using System.Diagnostics.Metrics;
+﻿using Application.Metrics.Interfaces;
+using System.Diagnostics.Metrics;
 
 namespace Application.Metrics;
 
-public class AuthMetrics
+public class AuthMetrics : IAuthMetrics
 {
 	private readonly Counter<int> _authAttempts;
 	private readonly Counter<int> _authFailures;

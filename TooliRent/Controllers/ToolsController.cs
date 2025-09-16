@@ -16,6 +16,9 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("all")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<ToolDto>>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<ToolDto>>>> GetAllTools(CancellationToken ct)
 		{
 			var tools = await _toolService.GetAllAsync(ct);
@@ -30,12 +33,15 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[ProducesResponseType(typeof(ApiResponse<ToolDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<ToolDto>>> GetToolById(Guid id, CancellationToken ct)
 		{
 			var tool = await _toolService.GetByIdAsync(id, ct);
 			return Ok(tool);
 		}
+
 		[HttpPost]
+		[ProducesResponseType(typeof(ApiResponse<ToolDto>), StatusCodes.Status201Created)]
 		public async Task<ActionResult<ApiResponse<ToolDto>>> AddTool([FromBody] AddToolDto addToolDto, CancellationToken ct)
 		{
 			var toolId = await _toolService.AddAsync(addToolDto, ct);
@@ -45,6 +51,7 @@ namespace TooliRent.Controllers
 
 		}
 		[HttpGet("avalible")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<ToolDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<ToolDto>>>> GetAvalibleTools(CancellationToken ct)
 		{
 			var tools = await _toolService.GetAvailableAsync(ct);
@@ -52,12 +59,16 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("search")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<ToolDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<ToolDto>>>> SearchTools([FromQuery] string searchQuery, CancellationToken ct)
 		{
 			var tools = await _toolService.SearchByNameAsync(searchQuery, ct);
 			return Ok(tools);
 		}
+
 		[HttpGet("category/{categoryId}")]
+		[ProducesResponseType(typeof(ApiResponse<IEnumerable<ToolDto>>), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<ToolDto>>>> GetToolsByCategory(Guid categoryId, CancellationToken ct)
 		{
 			var tools = await _toolService.GetByCategoryAsync(categoryId, ct);
@@ -65,6 +76,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpPut("{id}")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> UpdateTool(Guid id, [FromBody] UpdateToolDto updateToolDto, CancellationToken ct)
 		{
 			await _toolService.UpdateAsync(updateToolDto, id, ct);
@@ -72,6 +84,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpDelete("{id}")]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> DeleteTool(Guid id, CancellationToken ct)
 		{
 			await _toolService.DeleteAsync(id, ct);

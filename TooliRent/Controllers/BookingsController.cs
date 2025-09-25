@@ -1,6 +1,7 @@
 ﻿using Application.Dto.BookingDtos;
 using Application.Services.Interfaces;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Responses;
 
@@ -18,6 +19,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("all")]
+		[Authorize(Roles ="Admin")]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetAllBookings(CancellationToken ct)
 		{
@@ -31,6 +33,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[Authorize(Roles = "Admin")]
 		[ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<BookingDto?>>> GetBookingById(Guid id, CancellationToken ct)
 		{
@@ -44,10 +47,11 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}/items")]
+		[Authorize(Roles = "Admin, Member")]
 		[ProducesResponseType(typeof(ApiResponse<BookingWithItemsDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<BookingWithItemsDto?>>> GetBookingWithItems(Guid id, CancellationToken ct)
 		{
-			var result = await _bookingService.GetWithItemsAsync(id, ct);
+			var result = await _bookingService.GetWithItemsAsync(id, User, ct);
 			if (result.IsError)
 			{
 				return NotFound(result);

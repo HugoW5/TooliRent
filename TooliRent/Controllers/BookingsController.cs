@@ -1,6 +1,7 @@
 ﻿using Application.Dto.BookingDtos;
 using Application.Services.Interfaces;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Responses;
 
@@ -18,6 +19,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("all")]
+		[Authorize(Roles ="Admin")]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetAllBookings(CancellationToken ct)
 		{
@@ -31,6 +33,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[Authorize(Roles = "Admin")]
 		[ProducesResponseType(typeof(ApiResponse<BookingDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<BookingDto?>>> GetBookingById(Guid id, CancellationToken ct)
 		{
@@ -44,10 +47,11 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}/items")]
+		[Authorize(Roles = "Admin, Member")]
 		[ProducesResponseType(typeof(ApiResponse<BookingWithItemsDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<BookingWithItemsDto?>>> GetBookingWithItems(Guid id, CancellationToken ct)
 		{
-			var result = await _bookingService.GetWithItemsAsync(id, ct);
+			var result = await _bookingService.GetWithItemsAsync(id, User, ct);
 			if (result.IsError)
 			{
 				return NotFound(result);
@@ -71,6 +75,7 @@ namespace TooliRent.Controllers
 
 		[HttpGet("status/{status}")]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
+		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetBookingsByStatus(BookingStatus status, CancellationToken ct)
 		{
 			var result = await _bookingService.GetByStatusAsync(status, ct);
@@ -84,6 +89,7 @@ namespace TooliRent.Controllers
 
 		[HttpGet("active")]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
+		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetActiveBookings(CancellationToken ct)
 		{
 			var result = await _bookingService.GetActiveAsync(ct);
@@ -97,15 +103,17 @@ namespace TooliRent.Controllers
 
 		[HttpPost("{id}/return")]
 		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+		[Authorize(Roles = "Admin, Member")]
 		public async Task<ActionResult<ApiResponse>> ReturnBooking(Guid id, CancellationToken ct)
 		{
-			var response = await _bookingService.ReturnBookingAsync(id, ct);
+			var response = await _bookingService.ReturnBookingAsync(id, User, ct);
 			return Ok(response);
 		}
 
 
 		[HttpPost("create")]
 		[ProducesResponseType(typeof(ApiResponse<Guid?>), StatusCodes.Status201Created)]
+		[Authorize(Roles = "Admin, Member")]
 		public async Task<ActionResult<ApiResponse<Guid?>>> AddBooking([FromBody] AddBookingDto addBookingDto, CancellationToken ct)
 		{
 			var addedBookingId = await _bookingService.AddAsync(addBookingDto, User, ct);
@@ -118,6 +126,7 @@ namespace TooliRent.Controllers
 
 		[HttpPut("{id}")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> UpdateBooking(Guid id, [FromBody] UpdateBookingDto bookingDto, CancellationToken ct)
 		{
 			await _bookingService.UpdateAsync(bookingDto, id, ct);
@@ -126,6 +135,7 @@ namespace TooliRent.Controllers
 
 		[HttpDelete("{id}")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DeleteBooking(Guid id, CancellationToken ct)
 		{
 			await _bookingService.DeleteAsync(id, ct);
@@ -135,9 +145,10 @@ namespace TooliRent.Controllers
 		[HttpPost("{id}/pickup")]
 		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+		[Authorize(Roles = "Admin, Member")]
 		public async Task<ActionResult<ApiResponse>> PickupBooking(Guid id, CancellationToken ct)
 		{
-			var response = await _bookingService.PickupBookingAsync(id, ct);
+			var response = await _bookingService.PickupBookingAsync(id, User, ct);
 			if (response.IsError)
 			{
 				return BadRequest(response);

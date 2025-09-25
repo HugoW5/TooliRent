@@ -21,8 +21,8 @@ namespace Application.Services.Interfaces
 		Task<ApiResponse<IEnumerable<BookingDto>>> GetByUserAsync(string userId, CancellationToken ct = default);
 		Task<ApiResponse<IEnumerable<BookingDto>>> GetByStatusAsync(BookingStatus status, CancellationToken ct = default);
 		Task<ApiResponse<IEnumerable<BookingDto>>> GetActiveAsync(CancellationToken ct = default);
-		Task<ApiResponse<BookingWithItemsDto?>> GetWithItemsAsync(Guid id, CancellationToken ct = default);
-		Task<ApiResponse> ReturnBookingAsync(Guid bookingId, CancellationToken ct = default);
-		Task<ApiResponse> PickupBookingAsync(Guid bookingId, CancellationToken ct = default);
+		Task<ApiResponse<BookingWithItemsDto?>> GetWithItemsAsync(Guid id, ClaimsPrincipal user, CancellationToken ct = default);
+		Task<ApiResponse> ReturnBookingAsync(Guid bookingId, ClaimsPrincipal user, CancellationToken ct = default);
+		Task<ApiResponse> PickupBookingAsync(Guid bookingId, ClaimsPrincipal user, CancellationToken ct = default);
 	}
 }

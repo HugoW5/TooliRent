@@ -197,14 +197,20 @@ namespace Application.Services
 		/// <param name="ct"></param>
 		/// <returns></returns>
 		/// <exception cref="KeyNotFoundException"></exception>
-		public async Task<ApiResponse> ReturnBookingAsync(Guid bookingId, CancellationToken ct = default)
+		public async Task<ApiResponse> ReturnBookingAsync(Guid bookingId, ClaimsPrincipal user, CancellationToken ct = default)
 		{
 			string responseMessage = "Booking returned successfully";
+			var claimUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			var booking = await _repo.GetWithItemsAsync(bookingId, ct);
 			if (booking == null)
 			{
 				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
+
+			if(booking.UserId != claimUserId && !user.IsInRole("Admin"))
+			{
+				throw new UnauthorizedAccessException("You are not authorized to return this booking.");
 			}
 
 			if(booking.EndAt < DateTime.UtcNow)
@@ -337,11 +343,21 @@ namespace Application.Services
 		/// <returns>An <see cref="ApiResponse{T}"/> containing the booking and its associated items as a <see
 		/// cref="BookingWithItemsDto"/>.  If no booking is found, the method throws a <see cref="KeyNotFoundException"/>.</returns>
 		/// <exception cref="KeyNotFoundException">Thrown if a booking with the specified <paramref name="id"/> is not found.</exception>
-		public async Task<ApiResponse<BookingWithItemsDto?>> GetWithItemsAsync(Guid id, CancellationToken ct = default)
+		public async Task<ApiResponse<BookingWithItemsDto?>> GetWithItemsAsync(Guid id, ClaimsPrincipal user, CancellationToken ct = default)
 		{
 			var booking = await _repo.GetWithItemsAsync(id, ct);
+
 			if (booking == null)
+			{
 				throw new KeyNotFoundException($"Booking with ID {id} not found.");
+			}
+
+			var claimUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			if (booking.UserId != claimUserId && !user.IsInRole("Admin"))
+			{
+				throw new UnauthorizedAccessException("You are not authorized to view this booking.");
+			}
 
 			var dto = _mapper.Map<BookingWithItemsDto>(booking);
 			return new ApiResponse<BookingWithItemsDto?>
@@ -360,12 +376,20 @@ namespace Application.Services
 		/// <returns>A Success message</returns>
 		/// <exception cref="KeyNotFoundException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		public async Task<ApiResponse> PickupBookingAsync(Guid bookingId, CancellationToken ct = default)
+		public async Task<ApiResponse> PickupBookingAsync(Guid bookingId, ClaimsPrincipal user, CancellationToken ct = default)
 		{
+			var claimUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			var booking = await _repo.GetWithItemsAsync(bookingId, ct);
+			
 			if (booking == null)
 			{
 				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
+
+			if(booking.UserId != claimUserId && !user.IsInRole("Admin"))
+			{
+				throw new UnauthorizedAccessException("You are not authorized to pick up this booking.");
 			}
 
 			if (booking.Status != BookingStatus.Reserved)

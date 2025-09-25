@@ -148,7 +148,7 @@ namespace TooliRent.Controllers
 		[Authorize(Roles = "Admin, Member")]
 		public async Task<ActionResult<ApiResponse>> PickupBooking(Guid id, CancellationToken ct)
 		{
-			var response = await _bookingService.PickupBookingAsync(id, ct);
+			var response = await _bookingService.PickupBookingAsync(id, User, ct);
 			if (response.IsError)
 			{
 				return BadRequest(response);

@@ -197,14 +197,21 @@ namespace Application.Services
 		/// <param name="ct"></param>
 		/// <returns></returns>
 		/// <exception cref="KeyNotFoundException"></exception>
-		public async Task<ApiResponse> ReturnBookingAsync(Guid bookingId, CancellationToken ct = default)
+		public async Task<ApiResponse> ReturnBookingAsync(Guid bookingId, ClaimsPrincipal user, CancellationToken ct = default)
 		{
 			string responseMessage = "Booking returned successfully";
+			var role = user.FindFirstValue(ClaimTypes.Role);
+			var claimUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			var booking = await _repo.GetWithItemsAsync(bookingId, ct);
 			if (booking == null)
 			{
 				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
+
+			if(booking.UserId != claimUserId && !user.IsInRole("Admin"))
+			{
+				throw new UnauthorizedAccessException("You are not authorized to return this booking.");
 			}
 
 			if(booking.EndAt < DateTime.UtcNow)

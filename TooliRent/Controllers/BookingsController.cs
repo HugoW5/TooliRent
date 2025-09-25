@@ -75,6 +75,7 @@ namespace TooliRent.Controllers
 
 		[HttpGet("status/{status}")]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
+		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetBookingsByStatus(BookingStatus status, CancellationToken ct)
 		{
 			var result = await _bookingService.GetByStatusAsync(status, ct);
@@ -88,6 +89,7 @@ namespace TooliRent.Controllers
 
 		[HttpGet("active")]
 		[ProducesResponseType(typeof(ApiResponse<IEnumerable<BookingDto>>), StatusCodes.Status200OK)]
+		[Authorize(Roles = "Admin")]
 		public async Task<ActionResult<ApiResponse<IEnumerable<BookingDto>>>> GetActiveBookings(CancellationToken ct)
 		{
 			var result = await _bookingService.GetActiveAsync(ct);
@@ -101,9 +103,10 @@ namespace TooliRent.Controllers
 
 		[HttpPost("{id}/return")]
 		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+		[Authorize(Roles = "Admin, Member")]
 		public async Task<ActionResult<ApiResponse>> ReturnBooking(Guid id, CancellationToken ct)
 		{
-			var response = await _bookingService.ReturnBookingAsync(id, ct);
+			var response = await _bookingService.ReturnBookingAsync(id, User, ct);
 			return Ok(response);
 		}
 

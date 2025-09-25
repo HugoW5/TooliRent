@@ -113,6 +113,7 @@ namespace TooliRent.Controllers
 
 		[HttpPost("create")]
 		[ProducesResponseType(typeof(ApiResponse<Guid?>), StatusCodes.Status201Created)]
+		[Authorize(Roles = "Admin, Member")]
 		public async Task<ActionResult<ApiResponse<Guid?>>> AddBooking([FromBody] AddBookingDto addBookingDto, CancellationToken ct)
 		{
 			var addedBookingId = await _bookingService.AddAsync(addBookingDto, User, ct);
@@ -125,6 +126,7 @@ namespace TooliRent.Controllers
 
 		[HttpPut("{id}")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> UpdateBooking(Guid id, [FromBody] UpdateBookingDto bookingDto, CancellationToken ct)
 		{
 			await _bookingService.UpdateAsync(bookingDto, id, ct);
@@ -133,6 +135,7 @@ namespace TooliRent.Controllers
 
 		[HttpDelete("{id}")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DeleteBooking(Guid id, CancellationToken ct)
 		{
 			await _bookingService.DeleteAsync(id, ct);
@@ -142,6 +145,7 @@ namespace TooliRent.Controllers
 		[HttpPost("{id}/pickup")]
 		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+		[Authorize(Roles = "Admin, Member")]
 		public async Task<ActionResult<ApiResponse>> PickupBooking(Guid id, CancellationToken ct)
 		{
 			var response = await _bookingService.PickupBookingAsync(id, ct);

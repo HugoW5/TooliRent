@@ -200,7 +200,6 @@ namespace Application.Services
 		public async Task<ApiResponse> ReturnBookingAsync(Guid bookingId, ClaimsPrincipal user, CancellationToken ct = default)
 		{
 			string responseMessage = "Booking returned successfully";
-			var role = user.FindFirstValue(ClaimTypes.Role);
 			var claimUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			var booking = await _repo.GetWithItemsAsync(bookingId, ct);
@@ -377,12 +376,20 @@ namespace Application.Services
 		/// <returns>A Success message</returns>
 		/// <exception cref="KeyNotFoundException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		public async Task<ApiResponse> PickupBookingAsync(Guid bookingId, CancellationToken ct = default)
+		public async Task<ApiResponse> PickupBookingAsync(Guid bookingId, ClaimsPrincipal user, CancellationToken ct = default)
 		{
+			var claimUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
 			var booking = await _repo.GetWithItemsAsync(bookingId, ct);
+			
 			if (booking == null)
 			{
 				throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+			}
+
+			if(booking.UserId != claimUserId && !user.IsInRole("Admin"))
+			{
+				throw new UnauthorizedAccessException("You are not authorized to pick up this booking.");
 			}
 
 			if (booking.Status != BookingStatus.Reserved)

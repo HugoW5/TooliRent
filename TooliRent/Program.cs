@@ -1,23 +1,24 @@
+using Application.Mappings;
+using Application.Metrics;
+using Application.Metrics.Interfaces;
+using Application.Services;
+using Application.Services.Interfaces;
+using Application.Validators;
+using Domain.Interfaces.Repositories;
+using Domain.Interfaces.ServiceInterfaces;
+using Domain.Models;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using TooliRent.Middleware;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
-using Infrastructure.Data;
-using Domain.Interfaces.ServiceInterfaces;
-using Infrastructure.Repositories;
+using System.Text;
+using TooliRent.Middleware;
 using TooliRent.Services;
-using Application.Services;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using Application.Validators;
-using Domain.Interfaces.Repositories;
-using Application.Mappings;
-using Application.Services.Interfaces;
-using Application.Metrics;
-using Application.Metrics.Interfaces;
 
 namespace TooliRent;
 
@@ -33,7 +34,7 @@ public class Program
 			builder.Configuration.GetConnectionString("DefaultConnection"));
 
 		// Add Identity 
-		builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+		builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 			.AddEntityFrameworkStores<ApplicationDbContext>()
 			.AddDefaultTokenProviders();
 
@@ -148,6 +149,9 @@ public class Program
 		});
 
 		var app = builder.Build();
+		await UserRolesSeed.SeedAdminUserAsync(app.Services);
+
+
 		app.UseCors("AllowFrontend");
 
 		using (var scope = app.Services.CreateScope())

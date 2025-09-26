@@ -11,7 +11,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests.Repositories
 {
-	[TestClass]
 	public class ToolRepositoryTests
 	{
 		private ApplicationDbContext GetInMemoryDbContext()

@@ -13,7 +13,7 @@ namespace Domain.Models
 		public Guid Id { get; set; }
 
 		public string UserId { get; set; } = null!; // FK to IdentityUser
-		public IdentityUser User { get; set; } = null!;
+		public ApplicationUser User { get; set; } = null!;
 
 		public DateTime StartAt { get; set; }
 		public DateTime EndAt { get; set; }

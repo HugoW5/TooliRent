@@ -19,14 +19,14 @@ namespace TooliRent.Services
 		private readonly IRefreshTokenRepository _tokenRepo;
 		private readonly ITokenService _tokenService;
 		private readonly IConfiguration _config;
-		private readonly UserManager<IdentityUser> _userManager;
+		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly IAuthMetrics _metrics;
 
 		public AuthService(
 			IRefreshTokenRepository tokenRepo,
 			ITokenService tokenService,
 			IConfiguration config,
-			UserManager<IdentityUser> userManager,
+			UserManager<ApplicationUser> userManager,
 			IAuthMetrics metrics)
 		{
 			_tokenRepo = tokenRepo;
@@ -54,7 +54,7 @@ namespace TooliRent.Services
 			{
 				throw new ArgumentException("Invalid email format.");
 			}
-			var user = new IdentityUser
+			var user = new ApplicationUser
 			{
 				Email = dto.Email,
 				UserName = dto.UserName

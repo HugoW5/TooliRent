@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces.ServiceInterfaces;
+using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -12,9 +13,9 @@ namespace Application.Services
 	public class TokenService : ITokenService
 	{
 		private readonly IConfiguration _config;
-		private readonly UserManager<IdentityUser> _userManager;
+		private readonly UserManager<ApplicationUser> _userManager;
 
-		public TokenService(IConfiguration configuration, UserManager<IdentityUser> userManager)
+		public TokenService(IConfiguration configuration, UserManager<ApplicationUser> userManager)
 		{
 			_config = configuration;
 			_userManager = userManager;
@@ -26,7 +27,7 @@ namespace Application.Services
 			return Task.FromResult(refreshToken);
 		}
 
-		public async Task<string> GenerateTokenAsync(IdentityUser user)
+		public async Task<string> GenerateTokenAsync(ApplicationUser user)
 		{
 			var jwtSettings = _config.GetSection("JwtSettings");
 			var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!));

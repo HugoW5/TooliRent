@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace Tests.Repositories
 {
-	[TestClass]
 	public class BookingRepositoryTests
 	{
 		private ApplicationDbContext GetInMemoryDbContext()
@@ -37,7 +36,7 @@ namespace Tests.Repositories
 			{
 				Id = Guid.NewGuid(),
 				UserId = uuid.ToString(),
-				User = new Microsoft.AspNetCore.Identity.IdentityUser { Id = uuid, UserName = "user1" },
+				User = new ApplicationUser { Id = uuid, UserName = "user1" },
 				StartAt = DateTime.UtcNow,
 				EndAt = DateTime.UtcNow.AddDays(1),
 				Status = BookingStatus.Reserved
@@ -61,8 +60,8 @@ namespace Tests.Repositories
 			var context = GetInMemoryDbContext();
 			var repo = new BookingRepository(context);
 
-			var user1 = new IdentityUser { Id = "u1", UserName = "user1" };
-			var user2 = new IdentityUser { Id = "u2", UserName = "user2" };
+			var user1 = new ApplicationUser { Id = "u1", UserName = "user1" };
+			var user2 = new ApplicationUser { Id = "u2", UserName = "user2" };
 
 			await context.Users.AddRangeAsync(user1, user2);
 			await context.SaveChangesAsync(ct);
@@ -167,7 +166,7 @@ namespace Tests.Repositories
 			{
 				Id = Guid.NewGuid(),
 				UserId = "user1",
-				User = new IdentityUser { Id = "user1", UserName = "user1" },
+				User = new ApplicationUser { Id = "user1", UserName = "user1" },
 				StartAt = DateTime.UtcNow,
 				EndAt = DateTime.UtcNow.AddDays(1)
 			};

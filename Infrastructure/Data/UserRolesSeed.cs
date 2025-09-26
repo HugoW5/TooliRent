@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Domain.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.Data;
@@ -8,7 +9,7 @@ public static class UserRolesSeed
 	public static async Task SeedAdminUserAsync(IServiceProvider serviceProvider)
 	{
 		var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-		var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+		var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
 		// Roles
 		var roles = new[] { "Admin", "Member" };
@@ -25,7 +26,7 @@ public static class UserRolesSeed
 		var adminExists = await userManager.FindByEmailAsync(adminEmail);
 		if (adminExists == null)
 		{
-			var adminUser = new IdentityUser
+			var adminUser = new ApplicationUser
 			{
 				UserName = "admin",
 				Email = adminEmail,

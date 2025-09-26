@@ -111,6 +111,11 @@ namespace TooliRent.Services
 					_metrics.RecordFailure("login", "invalid_credentials");
 					throw new UnauthorizedAccessException("Invalid email or password.");
 				}
+				if (user.IsActive == false)
+				{
+					_metrics.RecordFailure("login", "inactive_account");
+					throw new UnauthorizedAccessException("User account is deactivated.");
+				}
 
 				var token = await _tokenService.GenerateTokenAsync(user);
 				var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
@@ -195,6 +200,7 @@ namespace TooliRent.Services
 				throw new KeyNotFoundException("User not found.");
 			}
 			user.IsActive = !user.IsActive;
+			await _userManager.UpdateSecurityStampAsync(user);
 			await _userManager.UpdateAsync(user);
 
 			return new ApiResponse<string>

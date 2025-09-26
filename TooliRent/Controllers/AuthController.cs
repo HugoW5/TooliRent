@@ -65,7 +65,7 @@ namespace TooliRent.Controllers
 			return Ok(result);
 		}
 
-		[Authorize(Roles ="Admin")]
+		[Authorize(Roles ="Admin, Member")]
 		[HttpGet("getUserInfo")]
 		public IActionResult GetUserInfo()
 		{

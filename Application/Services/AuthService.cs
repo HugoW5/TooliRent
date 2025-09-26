@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Responses;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using TooliRent.Exceptions;
 
 namespace TooliRent.Services
@@ -136,7 +137,6 @@ namespace TooliRent.Services
 			finally
 			{
 				sw.Stop();
-				_metrics.RecordDuration("login", sw.ElapsedMilliseconds);
 			}
 		}
 		
@@ -184,6 +184,24 @@ namespace TooliRent.Services
 					Token = token,
 					RefreshToken = newRefreshToken
 				},
+			};
+		}
+
+		public async Task<ApiResponse<string>> ToggleActivateAccount(string userId, CancellationToken ct = default)
+		{
+			var user = _userManager.Users.FirstOrDefault(u => u.Id == userId);
+			if(user == null)
+			{
+				throw new KeyNotFoundException("User not found.");
+			}
+			user.IsActive = !user.IsActive;
+			await _userManager.UpdateAsync(user);
+
+			return new ApiResponse<string>
+			{
+				IsError = false,
+				Message = user.IsActive ? "User account activated." : "User account deactivated.",
+				Data = user.Id
 			};
 		}
 	}

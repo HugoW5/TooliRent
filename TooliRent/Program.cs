@@ -13,6 +13,7 @@ using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
@@ -143,14 +144,24 @@ public class Program
 		{
 			options.AddPolicy("AllowFrontend",
 				policy => policy
-					.WithOrigins("http://localhost:5173") // your frontend URL
+					.WithOrigins("http://localhost:5173")
 					.AllowAnyHeader()
 					.AllowAnyMethod());
 		});
 
 		var app = builder.Build();
-		await UserRolesSeed.SeedAdminUserAsync(app.Services);
+		// Apply migrations & seed admin user
+		using (var scope = app.Services.CreateScope())
+		{
+			var services = scope.ServiceProvider;
 
+			// Apply migrations
+			var dbContext = services.GetRequiredService<ApplicationDbContext>();
+			dbContext.Database.Migrate();
+
+			// Seed admin user
+			await UserRolesSeed.SeedAdminUserAsync(services);
+		}
 
 		app.UseCors("AllowFrontend");
 

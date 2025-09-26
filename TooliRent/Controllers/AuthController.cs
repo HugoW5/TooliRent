@@ -57,7 +57,15 @@ namespace TooliRent.Controllers
 			return Ok(result);
 		}
 
-		[Authorize]
+		[HttpPut("ToggleActivateAccount/{id}")]
+
+		public async Task<ActionResult<ApiResponse<string>>> ToggleActivateAccount(string id, CancellationToken ct)
+		{
+			var result = await _authService.ToggleActivateAccount(id, ct);
+			return Ok(result);
+		}
+
+		[Authorize(Roles ="Admin, Member")]
 		[HttpGet("getUserInfo")]
 		public IActionResult GetUserInfo()
 		{

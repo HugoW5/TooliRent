@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Responses;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using TooliRent.Exceptions;
 
 namespace TooliRent.Services
@@ -19,14 +20,14 @@ namespace TooliRent.Services
 		private readonly IRefreshTokenRepository _tokenRepo;
 		private readonly ITokenService _tokenService;
 		private readonly IConfiguration _config;
-		private readonly UserManager<IdentityUser> _userManager;
+		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly IAuthMetrics _metrics;
 
 		public AuthService(
 			IRefreshTokenRepository tokenRepo,
 			ITokenService tokenService,
 			IConfiguration config,
-			UserManager<IdentityUser> userManager,
+			UserManager<ApplicationUser> userManager,
 			IAuthMetrics metrics)
 		{
 			_tokenRepo = tokenRepo;
@@ -54,7 +55,7 @@ namespace TooliRent.Services
 			{
 				throw new ArgumentException("Invalid email format.");
 			}
-			var user = new IdentityUser
+			var user = new ApplicationUser
 			{
 				Email = dto.Email,
 				UserName = dto.UserName
@@ -110,6 +111,11 @@ namespace TooliRent.Services
 					_metrics.RecordFailure("login", "invalid_credentials");
 					throw new UnauthorizedAccessException("Invalid email or password.");
 				}
+				if (user.IsActive == false)
+				{
+					_metrics.RecordFailure("login", "inactive_account");
+					throw new UnauthorizedAccessException("User account is deactivated.");
+				}
 
 				var token = await _tokenService.GenerateTokenAsync(user);
 				var refreshToken = await _tokenService.GenerateRefreshTokenAsync();
@@ -136,7 +142,6 @@ namespace TooliRent.Services
 			finally
 			{
 				sw.Stop();
-				_metrics.RecordDuration("login", sw.ElapsedMilliseconds);
 			}
 		}
 		
@@ -184,6 +189,25 @@ namespace TooliRent.Services
 					Token = token,
 					RefreshToken = newRefreshToken
 				},
+			};
+		}
+
+		public async Task<ApiResponse<string>> ToggleActivateAccount(string userId, CancellationToken ct = default)
+		{
+			var user = _userManager.Users.FirstOrDefault(u => u.Id == userId);
+			if(user == null)
+			{
+				throw new KeyNotFoundException("User not found.");
+			}
+			user.IsActive = !user.IsActive;
+			await _userManager.UpdateSecurityStampAsync(user);
+			await _userManager.UpdateAsync(user);
+
+			return new ApiResponse<string>
+			{
+				IsError = false,
+				Message = user.IsActive ? "User account activated." : "User account deactivated.",
+				Data = user.Id
 			};
 		}
 	}

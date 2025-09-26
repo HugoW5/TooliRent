@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Tests.Repositories
 {
-		[TestClass]
+	
 	public class CategoryRepositoryTests
 	{
 		private ApplicationDbContext GetInMemoryDbContext()

@@ -35,6 +35,7 @@ namespace TooliRent.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[Authorize(Roles = "Admin, Member")]
 		public async Task<ActionResult<ApiResponse<CategoryDto?>>> GetCategoryById(Guid id, CancellationToken ct)
 		{
 			var category = await _categoryService.GetByIdAsync(id, ct);

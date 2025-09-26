@@ -2,6 +2,7 @@
 using Application.Metrics.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.ServiceInterfaces;
+using Domain.Models;
 using Dto.AuthDtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,7 @@ namespace Tests.Services
 		private Mock<IRefreshTokenRepository> _tokenRepoMock = null!;
 		private Mock<ITokenService> _tokenServiceMock = null!;
 		private Mock<IConfiguration> _configMock = null!;
-		private UserManager<IdentityUser> _userManager = null!;
+		private UserManager<ApplicationUser> _userManager = null!;
 		private AuthService _authService = null!;
 		private Mock<IAuthMetrics> _metricsMock = null!;
 
@@ -34,34 +35,34 @@ namespace Tests.Services
 
 			_configMock.Setup(c => c["JwtSettings:RefreshTokenExpiryDays"]).Returns("7");
 
-			var store = new Mock<IUserStore<IdentityUser>>();
+			var store = new Mock<IUserStore<ApplicationUser>>();
 
-			var passwordStore = store.As<IUserPasswordStore<IdentityUser>>();
+			var passwordStore = store.As<IUserPasswordStore<ApplicationUser>>();
 			passwordStore
-				.Setup(x => x.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<CancellationToken>()))
+				.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync(IdentityResult.Success);
 			passwordStore
-				.Setup(x => x.SetPasswordHashAsync(It.IsAny<IdentityUser>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+				.Setup(x => x.SetPasswordHashAsync(It.IsAny<ApplicationUser>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
 				.Returns(Task.CompletedTask);
 
-			store.As<IUserEmailStore<IdentityUser>>()
+			store.As<IUserEmailStore<ApplicationUser>>()
 				.Setup(x => x.FindByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
 				.ReturnsAsync((string email, CancellationToken _) => null); // no user found
 
-			store.As<IUserRoleStore<IdentityUser>>()
-				.Setup(x => x.AddToRoleAsync(It.IsAny<IdentityUser>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+			store.As<IUserRoleStore<ApplicationUser>>()
+				.Setup(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
 				.Returns(Task.CompletedTask);
 
-			_userManager = new UserManager<IdentityUser>(
+			_userManager = new UserManager<ApplicationUser>(
 				store.Object,
 				Options.Create(new IdentityOptions()),
-				new PasswordHasher<IdentityUser>(),
-				new List<IUserValidator<IdentityUser>>(),
-				new List<IPasswordValidator<IdentityUser>> { new PasswordValidator<IdentityUser>() },
+				new PasswordHasher<ApplicationUser>(),
+				new List<IUserValidator<ApplicationUser>>(),
+				new List<IPasswordValidator<ApplicationUser>> { new PasswordValidator<ApplicationUser>() },
 				new UpperInvariantLookupNormalizer(),
 				new IdentityErrorDescriber(),
 				null!,
-				Mock.Of<ILogger<UserManager<IdentityUser>>>()
+				Mock.Of<ILogger<UserManager<ApplicationUser>>>()
 			);
 
 			_authService = new AuthService(

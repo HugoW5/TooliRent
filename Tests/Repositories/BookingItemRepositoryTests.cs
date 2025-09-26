@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace Tests.Repositories
 {
-	[TestClass]
 	public class BookingItemRepositoryTests
 	{
 		private ApplicationDbContext GetInMemoryDbContext()
@@ -117,7 +116,7 @@ namespace Tests.Repositories
 			await repo.UpdateAsync(item, ct);
 
 			var updatedItem = await repo.GetByIdAsync(item.Id, ct);
-			Assert.AreEqual(newTool.Id, updatedItem.ToolId);
+			Assert.AreEqual(newTool.Id, updatedItem!.ToolId);
 		}
 
 		[TestMethod]

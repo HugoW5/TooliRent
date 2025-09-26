@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Domain.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Interfaces.ServiceInterfaces
 {
 	public interface ITokenService
 	{
-		Task<string> GenerateTokenAsync(IdentityUser user);
+		Task<string> GenerateTokenAsync(ApplicationUser user);
 		Task<string> GenerateRefreshTokenAsync();
 	}
 }

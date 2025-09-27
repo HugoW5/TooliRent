@@ -4,17 +4,43 @@ TooliRent är ett RESTful API för att hantera uthyrning av verktyg. Systemet st
 
 ---
 
-## Arkitektur
+## Projektbeskrivning och Arkitektur
 
-Projektet är byggt med **ASP.NET Core Web API** och följer en klassisk lagerindelning:
+TooliRent är ett REST-API byggt med **ASP.NET Core Web API** för att hantera uthyrning av verktyg i ett makerspace. API:et följer en **N-Tier-arkitektur** med tydlig separation mellan lager:
 
-- **Auth** – hanterar autentisering och användarroller via JWT.
-- **Bookings** – ansvarar för uthyrningar, återlämningar och bokningsstatusar.
-- **Categories** – organiserar verktyg i kategorier.
-- **Tools** – hanterar enskilda verktyg, deras status och tillgänglighet.
-- **DTOs & Responses** – alla API-anrop returnerar standardiserade svar enligt `ApiResponse`-modellen.
+- **Presentation Layer (Controllers):**  
+  Hanterar inkommande HTTP-förfrågningar och skickar svar tillbaka till klienten. Exempel: `AuthController`, `BookingsController`, `CategoriesController`, `ToolsController`.
 
-Säkerhet implementeras med **JWT Bearer Authentication**.
+- **Application Layer (Services):**  
+  Innehåller affärslogik och orchestrerar operationer mellan Domain och Infrastructure.  
+  Här används **Service Pattern** för att kapsla logik och säkerställa återanvändbarhet.
+
+- **Domain Layer (Entities & Interfaces):**  
+  Representerar kärndomänen av applikationen med modeller som `Booking`, `Tool`, `Category` och `ApplicationUser`.  
+  Definierar även kontrakt för repository-interface.
+
+- **Infrastructure Layer (Repositories & DbContext):**  
+  Ansvarar för datalagring och access via **Repository Pattern**. Här ligger `TooliRentDbContext`, repository-implementationer och migrationer.
+
+### Repository & Service Pattern
+Projektet använder **Repository Pattern** för att abstrakta databasanrop och **Service Layer** för att hantera affärslogik. Detta gör koden modulär, testbar och lätt att underhålla.
+
+### Autentisering & Auktorisering
+- JWT-baserad autentisering.  
+- Rollbaserad auktorisering med rollerna **Member** och **Admin**.
+
+### Databas
+- **SQL Server** används som relationsdatabas.  
+- Code-First approach med migrations.  
+- Seed data finns för utveckling och testning.
+
+### DTOs & Standardiserade Svar
+Alla endpoints returnerar standardiserade svar enligt `ApiResponse`-modellen som föjler RFC 7807, vilket inkluderar:
+- `isError`: Boolean som anger om anropet misslyckades.  
+- `message`: Eventuellt meddelande till klienten.  
+- `data`: Det faktiska svaret (ex. `BookingDto`, `ToolDto`).  
+- `error`: Detaljer om eventuella fel.
+
 
 ---
 

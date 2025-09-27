@@ -165,3 +165,241 @@ Response: Ny JWT-token (TokenDtoApiResponse).
   ```bash
   id (string): ID för användaren som ska aktiveras/inaktiveras.
 Response: Meddelande (StringApiResponse) som bekräftar ändringen.
+
+
+### BookingsController
+
+#### GET /api/Bookings/all
+- Hämtar alla bokningar.
+- Response: Lista av bokningar (`BookingDtoIEnumerableApiResponse`).
+
+#### GET /api/Bookings/{id}
+- Hämtar en specifik bokning.
+- URL Parameter:
+  ```bash
+  id (string, guid): ID för bokningen
+Response: Bokningsdetaljer (BookingDtoApiResponse).
+
+
+#### PUT /api/Bookings/{id}
+- Uppdaterar en bokning.
+- URL Parameter:
+id (string, guid): ID för bokningen
+Request Body:
+  ```json
+  {
+  "startAt": "2025-09-27T10:00:00Z",
+  "endAt": "2025-09-27T12:00:00Z",
+  "status": 1
+  }
+Response: Bekräftelse (BookingDtoApiResponse).
+
+#### DELETE /api/Bookings/{id}
+- Tar bort en bokning.
+- URL Parameter:
+id (string, guid): ID för bokningen
+Response: No Content (204).
+
+
+#### GET /api/Bookings/{id}/items
+- Hämtar alla verktyg för en bokning.
+- URL Parameter:
+id (string, guid): ID för bokningen
+Response: Lista av verktyg (BookingWithItemsDtoApiResponse).
+
+
+#### GET /api/Bookings/user/{userId}
+- Hämtar alla bokningar för en användare.
+- URL Parameter:
+userId (string): ID för användaren
+Response: Lista av bokningar (BookingDtoIEnumerableApiResponse).
+
+
+#### GET /api/Bookings/status/{status}
+- Hämtar alla bokningar med specifik status.
+- URL Parameter:
+status (int): Bokningsstatus (0 = Reserved, 1 = PickedUp, 2 = Returned, etc.)
+Response: Lista av bokningar (BookingDtoIEnumerableApiResponse).
+
+#### GET /api/Bookings/active
+- Hämtar alla aktiva bokningar.
+Response: Lista av bokningar (BookingDtoIEnumerableApiResponse).
+
+#### POST /api/Bookings/{id}/return
+- Markerar bokningen som återlämnad.
+- URL Parameter:
+id (string, guid): ID för bokningen
+Response: Bekräftelse (ApiResponse).
+
+#### POST /api/Bookings/create
+
+Skapar en ny bokning.
+
+Request Body:
+    {
+  "userId": "string",
+  "startAt": "2025-09-27T10:00:00Z",
+  "endAt": "2025-09-27T12:00:00Z",
+  "toolIds": ["guid1", "guid2"]
+  }
+Response: ID för skapad bokning (GuidNullableApiResponse).
+
+#### POST /api/Bookings/{id}/pickup
+- Markerar bokningen som uthämtad.
+- URL Parameter:
+id (string, guid): ID för bokningen
+Response: Bekräftelse (ApiResponse).
+
+### CategoriesController
+
+#### GET /api/Categories/all
+- Hämtar alla kategorier.
+
+#### GET /api/Categories/{id}
+- Hämtar en specifik kategori.
+- URL Parameter:
+id (string, guid): ID för kategorin
+Response: Kategoridetaljer (CategoryDtoApiResponse).
+
+
+#### PUT /api/Categories/{id}
+- Uppdaterar en kategori.
+- URL Parameter:
+id (string, guid): ID för kategorin
+Response: Uppdaterad kategori (CategoryDtoApiResponse).
+
+#### DELETE /api/Categories/{id}
+- Tar bort en kategori.
+- URL Parameter:
+id (string, guid): ID för kategorin
+Response: No Content (204).
+
+#### POST /api/Categories/add
+- Skapar en ny kategori.
+- Request Body:
+{
+  "name": "string",
+  "description": "string"
+}
+Response: Ny kategori (CategoryDtoApiResponse).
+
+#### GET /api/Categories/search
+- Söker kategorier baserat på namn.
+- Query Parameter:
+- query (string): Söksträng
+Response: Lista av kategorier (CategoryDtoIEnumerableApiResponse).
+
+
+#### GET /api/Categories/{id}/tools
+- Hämtar alla verktyg i en specifik kategori.
+- URL Parameter:
+id (string, guid): ID för kategorin
+Response: Lista av verktyg (ToolDtoIEnumerableApiResponse).
+
+### Tools Controller
+
+#### GET /api/Tools/all
+- Hämtar alla verktyg.
+Response: Lista av verktyg (ToolDtoIEnumerableApiResponse).
+
+#### GET /api/Tools/{id}
+- Hämtar ett specifikt verktyg.
+- URL Parameter:
+id (string, guid): ID för verktyget
+Response: Verktygsdetaljer (ToolDtoApiResponse).
+
+#### PUT /api/Tools/{id}
+- Uppdaterar ett verktyg.
+- URL Parameter:
+id (string, guid): ID för verktyget
+- Request Body:
+{
+  "name": "string",
+  "description": "string",
+  "categoryId": "guid",
+  "status": 0
+}
+Response: Uppdaterat verktyg (ToolDtoApiResponse).
+
+#### DELETE /api/Tools/{id}
+- Tar bort ett verktyg.
+- URL Parameter:
+id (string, guid): ID för verktyget
+Response: No Content (204).
+
+#### POST /api/Tools
+- Skapar ett nytt verktyg.
+Request Body:
+{
+  "name": "string",
+  "description": "string",
+  "categoryId": "guid",
+  "status": 0
+}
+Response: Nytt verktyg (ToolDtoApiResponse).
+
+
+#### GET /api/Tools/available
+- Hämtar alla verktyg med status Available.
+Response: Lista av verktyg (ToolDtoIEnumerableApiResponse).
+
+#### GET /api/Tools/search
+- Söker verktyg baserat på namn.
+- Query Parameter:
+ - query (string): Söksträng
+Response: Lista av verktyg (ToolDtoIEnumerableApiResponse).
+
+#### GET /api/Tools/category/{categoryId}
+- Hämtar alla verktyg i en specifik kategori.
+- URL Parameter:
+- categoryId (string, guid): ID för kategorin
+Response: Lista av verktyg (ToolDtoIEnumerableApiResponse).
+
+
+
+### Dtos
+CategoryDto
+{
+  "id": "guid",
+  "name": "string",
+  "description": "string"
+}
+
+ToolDto
+{
+  "id": "guid",
+  "name": "string",
+  "description": "string",
+  "categoryId": "guid",
+  "status": 0
+}
+
+BookingDto
+{
+  "id": "guid",
+  "userId": "string",
+  "startAt": "datetime",
+  "endAt": "datetime",
+  "status": 0,
+  "bookingItems": [
+    {
+      "id": "guid",
+      "toolId": "guid"
+    }
+  ]
+}
+
+TokenDto
+{
+  "accessToken": "string",
+  "refreshToken": "string",
+  "expiresIn": "datetime"
+}
+
+ApiResponse
+{
+  "isError": false,
+  "message": "string",
+  "data": {},
+  "error": null
+}

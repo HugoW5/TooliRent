@@ -142,6 +142,7 @@ namespace TooliRent.Services
 			finally
 			{
 				sw.Stop();
+				_metrics.RecordDuration("login", sw.ElapsedMilliseconds);
 			}
 		}
 		

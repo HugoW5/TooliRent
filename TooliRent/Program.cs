@@ -27,7 +27,7 @@ namespace TooliRent;
 public class Program
 {
 	public async static Task Main(string[] args)
-	{	
+	{
 		var builder = WebApplication.CreateBuilder(args);
 
 		Log.Logger = new LoggerConfiguration()
@@ -50,8 +50,32 @@ public class Program
 			.AddDefaultTokenProviders();
 
 		// JWT
-		var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-		var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
+		// Environment
+		var env = builder.Environment.EnvironmentName;
+
+		// JWT settings
+		string secret, issuer, audience;
+		int expiryMinutes, refreshDays;
+
+		if (env == "Development")
+		{
+			secret = builder.Configuration["JWTSECRET_DEV"] ?? "dev-secret";
+			issuer = builder.Configuration["JWTISSUER_DEV"] ?? "ApiDev";
+			audience = builder.Configuration["JWTAUDIENCE_DEV"] ?? "ApiUsersDev";
+			expiryMinutes = int.Parse(builder.Configuration["JWTEXPIRYMINUTES_DEV"] ?? "15");
+			refreshDays = int.Parse(builder.Configuration["JWTREFRESHTOKENDAYS_DEV"] ?? "7");
+		}
+		else
+		{
+			secret = builder.Configuration["JWTSECRET"] ?? throw new Exception("JWT Secret missing!");
+			issuer = builder.Configuration["JWTISSUER"] ?? "Api";
+			audience = builder.Configuration["JWTAUDIENCE"] ?? "ApiUsers";
+			expiryMinutes = int.Parse(builder.Configuration["JWTEXPIRYMINUTES"] ?? "15");
+			refreshDays = int.Parse(builder.Configuration["JWTREFRESHTOKENDAYS"] ?? "7");
+		}
+
+		var key = Encoding.UTF8.GetBytes(secret);
+
 
 		builder.Services.AddAuthorization();
 
@@ -68,14 +92,15 @@ public class Program
 				ValidateAudience = true,
 				ValidateLifetime = true,
 				ValidateIssuerSigningKey = true,
-				ValidIssuer = jwtSettings["Issuer"],
-				ValidAudience = jwtSettings["Audience"],
+				ValidIssuer = issuer,
+				ValidAudience = audience,
 				IssuerSigningKey = new SymmetricSecurityKey(key),
 				ClockSkew = TimeSpan.Zero,
 				RoleClaimType = ClaimTypes.Role,
 				NameClaimType = ClaimTypes.NameIdentifier
 			};
 		});
+
 
 		// Repositories
 		builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

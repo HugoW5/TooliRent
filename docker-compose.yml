@@ -1,0 +1,6 @@
+services:
+  toolirent:
+    image: ${DOCKER_REGISTRY-}toolirent
+    build:
+      context: .
+      dockerfile: TooliRent/Dockerfile

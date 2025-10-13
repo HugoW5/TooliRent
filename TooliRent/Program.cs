@@ -20,61 +20,40 @@ using System.Security.Claims;
 using System.Text;
 using TooliRent.Middleware;
 using TooliRent.Services;
+using Serilog;
 
 namespace TooliRent;
 
 public class Program
 {
 	public async static Task Main(string[] args)
-	{
+	{	
 		var builder = WebApplication.CreateBuilder(args);
-		builder.AddServiceDefaults();
 
-		// Add services to the container.
+		Log.Logger = new LoggerConfiguration()
+			.WriteTo.Console()
+			.Enrich.FromLogContext()
+			.CreateLogger();
+
+		builder.Host.UseSerilog();
+
+		builder.AddServiceDefaults();
+		builder.Services.AddControllers();
+
+		// Database
 		builder.Services.AddSqlServer<ApplicationDbContext>(
 			builder.Configuration.GetConnectionString("DefaultConnection"));
 
-		// Add Identity 
+		// Identity
 		builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 			.AddEntityFrameworkStores<ApplicationDbContext>()
 			.AddDefaultTokenProviders();
 
-		// Add JWT Authentication
+		// JWT
 		var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 		var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
 
-		// Register Repositories and Services
-		#region Register Repositories
-		builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-		builder.Services.AddScoped<IToolRepository, ToolRepository>();
-		builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-		builder.Services.AddScoped<IBookingRepository, BookingRepository>();
-		builder.Services.AddScoped<IBookingItemRepository, BookingItemRepository>();
-		#endregion
-
-		#region Register Unit of Work
-		builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-		#endregion
-
-		#region Register Services
-		builder.Services.AddScoped<IAuthService, AuthService>();
-		builder.Services.AddScoped<ITokenService, TokenService>();
-		builder.Services.AddScoped<IToolService, ToolService>();
-		builder.Services.AddScoped<ICategoryService, CategoryService>();
-		builder.Services.AddScoped<IBookingService, BookingService>();
-		#endregion
-
-		#region Register Aspire metrics
-		builder.Services.AddSingleton<IAuthMetrics, AuthMetrics>();
-		#endregion
-
-
-
-		//Add AutoMapper
-		builder.Services.AddAutoMapper(cfg =>
-		{
-			cfg.AddProfile<MappingProfile>();
-		});
+		builder.Services.AddAuthorization();
 
 		builder.Services.AddAuthentication(options =>
 		{
@@ -93,37 +72,49 @@ public class Program
 				ValidAudience = jwtSettings["Audience"],
 				IssuerSigningKey = new SymmetricSecurityKey(key),
 				ClockSkew = TimeSpan.Zero,
-
 				RoleClaimType = ClaimTypes.Role,
 				NameClaimType = ClaimTypes.NameIdentifier
 			};
 		});
 
-		builder.Services.AddControllers();
-		builder.Services.AddEndpointsApiExplorer();
+		// Repositories
+		builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+		builder.Services.AddScoped<IToolRepository, ToolRepository>();
+		builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+		builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+		builder.Services.AddScoped<IBookingItemRepository, BookingItemRepository>();
+		builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-		// Register FluentValidation auto-validation for Web API
+		// Services
+		builder.Services.AddScoped<IAuthService, AuthService>();
+		builder.Services.AddScoped<ITokenService, TokenService>();
+		builder.Services.AddScoped<IToolService, ToolService>();
+		builder.Services.AddScoped<ICategoryService, CategoryService>();
+		builder.Services.AddScoped<IBookingService, BookingService>();
+
+		// Metrics
+		builder.Services.AddSingleton<IAuthMetrics, AuthMetrics>();
+
+		// AutoMapper
+		builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+
+		// FluentValidation
 		builder.Services.AddFluentValidationAutoValidation();
-		builder.Services.AddFluentValidationClientsideAdapters(); // optional, mainly for MVC/Razor
-
-		// Register all validators from your assembly
 		builder.Services.AddValidatorsFromAssemblyContaining<UpdateToolDtoValidator>();
 
-		// Swagger with JWT Auth support
+		// Swagger
+		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddSwaggerGen(c =>
 		{
 			c.SwaggerDoc("v1", new OpenApiInfo { Title = "TooliRent", Version = "v1" });
-
 			c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 			{
 				Name = "Authorization",
 				Type = SecuritySchemeType.Http,
 				Scheme = "Bearer",
 				BearerFormat = "JWT",
-				In = ParameterLocation.Header,
-				Description = "Enter JWT Token:"
+				In = ParameterLocation.Header
 			});
-
 			c.AddSecurityRequirement(new OpenApiSecurityRequirement
 			{
 				{
@@ -140,56 +131,41 @@ public class Program
 			});
 		});
 
-		builder.Services.AddCors(options =>
-		{
-			options.AddPolicy("AllowFrontend",
-				policy => policy
-					.WithOrigins("http://localhost:5173")
-					.AllowAnyHeader()
-					.AllowAnyMethod());
-		});
+		// Health Check
+		builder.Services.AddHealthChecks();
 
 		var app = builder.Build();
-		// Apply migrations & seed admin user
-		using (var scope = app.Services.CreateScope())
-		{
-			var services = scope.ServiceProvider;
 
-			// Apply migrations
-			var dbContext = services.GetRequiredService<ApplicationDbContext>();
-			dbContext.Database.Migrate();
-
-			// Seed admin user
-			await UserRolesSeed.SeedAdminUserAsync(services);
-		}
-
-		app.UseCors("AllowFrontend");
-
-		using (var scope = app.Services.CreateScope())
-		{
-			var services = scope.ServiceProvider;
-			await UserRolesSeed.SeedAdminUserAsync(services);
-		}
-
-		// .NET ASPIRE
-		app.MapDefaultEndpoints();
-
-		// Global Exception Middleware
-		app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-		// Configure the HTTP request pipeline.
+		// Seed/migrate only in dev
 		if (app.Environment.IsDevelopment())
 		{
-			app.UseSwagger();
-			app.UseSwaggerUI();
+			using var scope = app.Services.CreateScope();
+			var services = scope.ServiceProvider;
+			var db = services.GetRequiredService<ApplicationDbContext>();
+			db.Database.Migrate();
+			await UserRolesSeed.SeedAdminUserAsync(services);
+		}
+		else
+		{
+			Console.WriteLine("Skipping database migration in non-dev environment.");
 		}
 
-		app.UseHttpsRedirection();
+		app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+		if (app.Environment.IsDevelopment())
+		{
+			app.UseHttpsRedirection();
+		}
+
+		app.UseSwaggerUI();
+		app.UseSwagger();
 
 		app.UseAuthentication();
 		app.UseAuthorization();
 
 		app.MapControllers();
+		app.MapHealthChecks("/health");
+		app.MapDefaultEndpoints();
 
 		app.Run();
 	}

@@ -41,8 +41,11 @@ public class Program
 		builder.Services.AddControllers();
 
 		// Database
-		builder.Services.AddSqlServer<ApplicationDbContext>(
-			builder.Configuration.GetConnectionString("DefaultConnection"));
+		var connectionString = builder.Configuration["SQLSERVER_CONNECTION"]
+					   ?? builder.Configuration.GetConnectionString("DefaultConnection")
+					   ?? throw new Exception("Connection string is missing!");
+
+		builder.Services.AddSqlServer<ApplicationDbContext>(connectionString);
 
 		// Identity
 		builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
